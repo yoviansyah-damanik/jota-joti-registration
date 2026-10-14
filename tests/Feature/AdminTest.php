@@ -58,6 +58,8 @@ class AdminTest extends TestCase
             route('admin.attendance.index'),
             route('admin.attendance.sessions'),
             route('admin.settings'),
+            route('admin.tasks.index'),
+            route('admin.profile'),
             route('admin.reports.payments'),
             route('admin.print.payments'),
             route('admin.print.attendance', $session),

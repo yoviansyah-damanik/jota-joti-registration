@@ -8,6 +8,7 @@
         ['route' => 'admin.attendance.sessions', 'match' => 'admin.attendance.sessions', 'icon' => 'table', 'label' => __('Attendance Sessions')],
         ['route' => 'admin.tasks.index', 'match' => 'admin.tasks.*', 'icon' => 'document', 'label' => __('Penilaian Tugas')],
         ['route' => 'admin.settings', 'match' => 'admin.settings', 'icon' => 'cog', 'label' => __('Settings')],
+        ['route' => 'admin.profile', 'match' => 'admin.profile', 'icon' => 'user', 'label' => __('Edit Profile')],
     ];
     $user = auth()->user();
 @endphp
@@ -36,14 +37,16 @@
     </ul>
 
     <div class="p-3">
-        <div class="bg-base-200 flex items-center gap-3 rounded-xl p-2.5">
-            <span class="bg-primary text-primary-content flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-bold">
-                {{ \Illuminate\Support\Str::of($user?->name)->substr(0, 1)->upper() }}
-            </span>
-            <div class="min-w-0 flex-1">
-                <p class="truncate text-sm font-semibold">{{ $user?->name }}</p>
-                <p class="text-base-content/60 truncate text-xs">{{ $user?->username ? '@'.$user->username : $user?->email }}</p>
-            </div>
+        <div class="bg-base-200 flex items-center gap-2 rounded-xl p-2.5">
+            <a href="{{ route('admin.profile') }}" wire:navigate class="flex items-center gap-2.5 min-w-0 flex-1 hover:opacity-80 transition-opacity" title="{{ __('Edit Profile') }}">
+                <span class="bg-primary text-primary-content flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-bold">
+                    {{ \Illuminate\Support\Str::of($user?->name)->substr(0, 1)->upper() }}
+                </span>
+                <div class="min-w-0 flex-1">
+                    <p class="truncate text-sm font-semibold">{{ $user?->name }}</p>
+                    <p class="text-base-content/60 truncate text-xs">{{ $user?->username ? '@'.$user->username : $user?->email }}</p>
+                </div>
+            </a>
             <form method="POST" action="{{ route('admin.logout') }}">
                 @csrf
                 <button type="submit" class="btn btn-ghost btn-sm btn-square" title="{{ __('Log out') }}" aria-label="{{ __('Log out') }}">

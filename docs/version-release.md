@@ -1,5 +1,23 @@
 # Version Release Notes
 
+## Release v1.5.0 (2026-10-14)
+
+### Major Enhancements & New Features
+
+1. **Admin Edit Profile & Account Security (`/admin/profile`)**:
+   - **Data Pribadi**: Memperbarui Nama Lengkap, Username, dan Email akun admin dengan validasi format dan keunikan yang aman mengabaikan ID admin yang sedang aktif.
+   - **Ubah Kata Sandi**: Penggantian kata sandi dengan verifikasi kata sandi saat ini (`current_password`) serta validasi konfirmasi kata sandi baru (minimal 8 karakter).
+   - **Navigasi Cepat Sidebar**: Menambahkan item menu **Edit Profile** dan tautan interaktif pada kartu profil pengguna di bagian footer sidebar admin.
+   - **Feedback Notifikasi**: Toast notification instan saat data profil atau kata sandi berhasil diperbarui.
+
+2. **Penyempurnaan Integrasi Penilaian Tugas**:
+   - Memastikan rute `/admin/tasks` dan `/admin/profile` masuk ke dalam pengujian akses seluruh halaman admin.
+
+### Test Coverage
+- 91 automated feature and unit tests passing (`100% pass`).
+
+---
+
 ## Release v1.4.0 (2026-10-14)
 
 ### Major Enhancements & New Features

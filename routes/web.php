@@ -75,6 +75,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::livewire('/tasks', Admin\Tasks\Index::class)->name('tasks.index');
         Route::livewire('/reports/payments', Admin\Reports\Payments::class)->name('reports.payments');
         Route::livewire('/settings', Admin\Settings::class)->name('settings');
+        Route::livewire('/profile', Admin\Profile::class)->name('profile');
 
         Route::get('/documents/{document}', [DownloadController::class, 'document'])->name('documents.show');
         Route::get('/exports/participants', [AdminExportController::class, 'participants'])->name('exports.participants');
