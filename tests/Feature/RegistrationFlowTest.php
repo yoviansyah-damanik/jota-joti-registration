@@ -109,13 +109,70 @@ class RegistrationFlowTest extends TestCase
         $this->assertNull(session('registration.draft'));
     }
 
-    public function test_participant_upload_rejects_too_few_participants(): void
+    public function test_participant_upload_accepts_any_count_including_one_or_two(): void
+    {
+        // 1 peserta
+        Livewire::withoutLazyLoading()->test(Step2ParticipantUpload::class)
+            ->set('participantFile', $this->participantSheet($this->validRows(1)))
+            ->assertSet('sheetErrors', [])
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertDispatched('step-completed');
+
+        // 2 peserta
+        Livewire::withoutLazyLoading()->test(Step2ParticipantUpload::class)
+            ->set('participantFile', $this->participantSheet($this->validRows(2)))
+            ->assertSet('sheetErrors', [])
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertDispatched('step-completed');
+    }
+
+    public function test_participant_upload_rejects_empty_participants(): void
     {
         Livewire::withoutLazyLoading()->test(Step2ParticipantUpload::class)
-            ->set('participantFile', $this->participantSheet($this->validRows(3)))
-            ->assertNotSet('sheetErrors', [])
+            ->set('participantFile', $this->participantSheet([]))
             ->call('save')
             ->assertHasErrors('participantFile');
+    }
+
+    public function test_full_registration_flow_with_single_participant(): void
+    {
+        app(\App\Services\SettingService::class)->save(['registration_fee' => 75000]);
+
+        Livewire::withoutLazyLoading()->test(Step1TroopData::class)
+            ->set('troop_number', '01-085')
+            ->set('troop_name', 'Gudep Mandiri')
+            ->set('unit', 'penggalang')
+            ->set('pic_name', 'Kak Budi')
+            ->set('pic_phone', '081234567899')
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertDispatched('step-completed');
+
+        Livewire::withoutLazyLoading()->test(Step2ParticipantUpload::class)
+            ->set('participantFile', $this->participantSheet($this->validRows(1)))
+            ->assertSet('sheetErrors', [])
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertDispatched('step-completed');
+
+        Livewire::withoutLazyLoading()->test(Step3Documents::class)
+            ->set('assignmentLetter', UploadedFile::fake()->create('surat.pdf', 100, 'application/pdf'))
+            ->set('paymentProof', UploadedFile::fake()->image('bukti.jpg'))
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertDispatched('step-completed');
+
+        Livewire::withoutLazyLoading()->test(Step4Review::class)
+            ->set('confirmed', true)
+            ->call('submit')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('register.completed'));
+
+        $troop = Troop::where('troop_number', '01-085')->withCount('participants')->sole();
+        $this->assertSame(1, $troop->participants_count);
+        $this->assertSame(75000, $troop->fee_total);
     }
 
     private function fillTroopStep(string $number)

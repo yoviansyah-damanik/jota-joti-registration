@@ -1,7 +1,7 @@
 @php
     $requirements = [
         ['icon' => 'flag', 'title' => __('Troop identity'), 'description' => __('Troop (gudep) number and full troop name, plus the name and phone number of the person in charge.')],
-        ['icon' => 'table', 'title' => __('Participant data (Excel)'), 'description' => __('Fill in the provided template: KTA number, full name, date of birth, and gender. Minimum :count participants per troop.', ['count' => $settings->minParticipantsPerTroop()])],
+        ['icon' => 'table', 'title' => __('Participant data (Excel)'), 'description' => __('Fill in the provided template: KTA number, full name, date of birth, and gender. Troops can register any number of participants.')],
         ['icon' => 'document', 'title' => __('Assignment letter'), 'description' => __('Signed assignment letter from the troop leader, in PDF/JPG/PNG format (max 2 MB).')],
         ['icon' => 'banknotes', 'title' => __('Proof of payment'), 'description' => __('Transfer receipt for the registration fee, in PDF/JPG/PNG format (max 2 MB).')],
     ];

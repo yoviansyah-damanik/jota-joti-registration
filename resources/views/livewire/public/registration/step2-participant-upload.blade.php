@@ -2,7 +2,7 @@
     $minimum = app(\App\Services\SettingService::class)->minParticipantsPerTroop();
     $guide = [
         __('Download the template or enter manually'),
-        __('Fill in at least :count participants', ['count' => $minimum]),
+        __('Fill in participant data (any count)'),
         __('Check the list before continuing'),
     ];
 @endphp

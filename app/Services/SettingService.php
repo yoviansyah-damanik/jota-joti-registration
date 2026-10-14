@@ -177,20 +177,11 @@ class SettingService
     }
 
     /**
-     * Jumlah minimal peserta per gudep agar setiap nomor grup terisi sesuai konfigurasi.
+     * Jumlah minimal peserta per gudep saat pendaftaran (diperbolehkan berapapun, minimal 1).
      */
     public function minParticipantsPerTroop(?ScoutUnit $unit = null): int
     {
-        $minPerNumber = $this->minPerNumber();
-        if ($unit === ScoutUnit::Penggalang) {
-            return $this->penggalangGroupCount() * $minPerNumber;
-        }
-
-        if ($unit === ScoutUnit::PenegakPandega) {
-            return $this->penegakGroupCount() * $minPerNumber;
-        }
-
-        return min($this->penggalangGroupCount(), $this->penegakGroupCount()) * $minPerNumber;
+        return 1;
     }
 
     public function registrationOpen(): bool

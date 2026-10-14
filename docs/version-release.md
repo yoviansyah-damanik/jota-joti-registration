@@ -1,5 +1,28 @@
 # Version Release Notes
 
+## Release v1.3.0 (2026-10-14)
+
+### Major Enhancements & Updates
+
+1. **Flexible Participant Registration Count (Pendaftaran Jumlah Peserta Bebas)**:
+   - Batasan minimal 5 peserta dihapus. Gugusdepan kini dapat mendaftar dengan jumlah peserta berapapun (termasuk 1 atau 2 peserta, minimal 1).
+   - Penyesuaian kalkulasi total biaya pendaftaran dan distribusi penugasan nomor grup tetap proporsional.
+   - Pembaruan teks panduan pendaftaran pada wizard dan halaman syarat registrasi publik.
+
+2. **Admin Participant Management (Edit Data Peserta pada Menu Registrasi)**:
+   - Admin dapat langsung mengedit data peserta dari tabel registrasi gudep (`/admin/registrations/{troop}`).
+   - Modal interaktif pengeditan Nama Lengkap, Tanggal Lahir, Jenis Kelamin (L/P), Nomor KTA/NTA (opsional), dan Nomor Grup (sesuai alokasi golongan Penggalang / Penegak).
+   - Validasi duplikasi KTA/NTA yang aman mengecualikan data peserta yang sedang diedit.
+
+3. **Manual Attendance Sheet Refinements (Penyempurnaan Lembar Absensi Manual)**:
+   - Format tanggal otomatis terisi sesuai tanggal sesi kegiatan (contoh: "Padangsidimpuan, 17 Oktober 2026").
+   - Penandatangan lembar absensi disesuaikan menjadi "Administrator Absensi" dengan garis tanda tangan ringkas tanpa kurung.
+
+### Test Coverage
+- 77 automated feature and unit tests passing (`100% pass`).
+
+---
+
 ## Release v1.2.0 (2026-10-14)
 
 ### Major Enhancements & New Features
