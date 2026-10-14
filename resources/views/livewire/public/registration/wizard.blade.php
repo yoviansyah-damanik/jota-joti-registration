@@ -3,7 +3,18 @@
 @endphp
 
 <div class="space-y-6">
-    <x-ui.page-header :title="__('Registration Form')" :subtitle="__('Complete each step. Your progress is kept in this browser until you submit.')" />
+    <x-ui.page-header :title="__('Registration Form')" :subtitle="__('Complete each step. Your progress is kept in this browser until you submit.')">
+        <button type="button"
+            class="group btn btn-sm bg-gradient-to-r from-error/15 via-error/20 to-error/15 hover:from-error hover:to-rose-600 text-error hover:text-white border border-error/30 hover:border-error rounded-xl font-bold px-4 py-2 shadow-xs hover:shadow-md hover:shadow-error/20 transition-all duration-300 gap-2 shrink-0"
+            wire:click="resetDraft"
+            wire:confirm="{{ __('Apakah Anda yakin ingin mereset formulir dan mengulang pendaftaran dari awal? Seluruh data yang sudah dimasukkan akan dihapus.') }}">
+            <span
+                class="flex size-5 items-center justify-center rounded-lg bg-error/20 group-hover:bg-white/20 text-error group-hover:text-white transition-colors">
+                <x-ui.icon name="arrow-path" class="size-3.5 transition-transform duration-500 group-hover:rotate-180" />
+            </span>
+            <span>{{ __('Reset Pendaftaran') }}</span>
+        </button>
+    </x-ui.page-header>
 
     {{-- Ringkasan progres untuk layar kecil --}}
     <div class="bg-base-100 rounded-box shadow-soft space-y-3 p-4 lg:hidden">
@@ -11,7 +22,8 @@
             <p class="font-bold">{{ $steps[$step]['title'] }}</p>
             <p class="text-base-content/60 text-sm">{{ __('Step :n of :total', ['n' => $step, 'total' => $total]) }}</p>
         </div>
-        <progress class="progress progress-primary h-2 w-full" value="{{ $step }}" max="{{ $total }}"></progress>
+        <progress class="progress progress-primary h-2 w-full" value="{{ $step }}"
+            max="{{ $total }}"></progress>
     </div>
 
     <div class="grid gap-6 lg:grid-cols-[19rem_minmax(0,1fr)] lg:items-start">
@@ -27,23 +39,18 @@
                         $locked = $number > $reached;
                     @endphp
                     <li wire:key="rail-{{ $number }}">
-                        <button
-                            type="button"
-                            wire:click="goTo({{ $number }})"
-                            @disabled($locked)
+                        <button type="button" wire:click="goTo({{ $number }})" @disabled($locked)
                             @class([
                                 'flex w-full items-start gap-4 rounded-xl px-3 py-3.5 text-left transition',
                                 'bg-white/10' => $current,
-                                'hover:bg-white/5' => ! $current && ! $locked,
+                                'hover:bg-white/5' => !$current && !$locked,
                                 'cursor-not-allowed opacity-45' => $locked,
-                            ])
-                            @if ($current) aria-current="step" @endif
-                        >
+                            ]) @if ($current) aria-current="step" @endif>
                             <span @class([
                                 'flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-extrabold',
                                 'bg-primary text-primary-content ring-2 ring-white/40' => $done,
-                                'bg-accent text-accent-content' => $current && ! $done,
-                                'bg-white/15' => ! $done && ! $current,
+                                'bg-accent text-accent-content' => $current && !$done,
+                                'bg-white/15' => !$done && !$current,
                             ])>
                                 @if ($done)
                                     <x-ui.icon name="check" class="size-5" />
@@ -53,7 +60,8 @@
                             </span>
                             <span class="min-w-0">
                                 <span class="block font-bold text-white">{{ $item['title'] }}</span>
-                                <span class="text-neutral-content/65 mt-0.5 block text-sm leading-snug">{{ $item['description'] }}</span>
+                                <span
+                                    class="text-neutral-content/65 mt-0.5 block text-sm leading-snug">{{ $item['description'] }}</span>
                             </span>
                         </button>
                     </li>
@@ -73,13 +81,16 @@
             @switch($step)
                 @case(1)
                     <livewire:public.registration.step1-troop-data wire:key="step-1" />
-                    @break
+                @break
+
                 @case(2)
                     <livewire:public.registration.step2-participant-upload wire:key="step-2" />
-                    @break
+                @break
+
                 @case(3)
                     <livewire:public.registration.step3-documents wire:key="step-3" />
-                    @break
+                @break
+
                 @default
                     <livewire:public.registration.step4-review wire:key="step-4" />
             @endswitch

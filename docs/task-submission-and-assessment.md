@@ -1,0 +1,22 @@
+# Task Submission & Assessment (Pengiriman & Penilaian Tugas JOTA-JOTI)
+
+- **Database & Model**:
+  - Tabel: `task_submissions` (UUID primary key, foreign key `participant_id` unique).
+  - Kolom: `jid`, `jjid`, `jota_file_path`, `joti_file_path`, `notes`, `jota_status`, `jota_admin_note`, `joti_status`, `joti_admin_note`, `final_status`, `admin_notes`, `assessed_by`, `assessed_at`.
+  - Enum Status: `App\Enums\TaskStatus` (`Pending`, `Completed` [Selesai], `Revision` [Revisi], `Rejected` [Ditolak]).
+- **Form Pengiriman Tugas (Publik)**:
+  - Route: `/tugas` (`tasks.submit`)
+  - Komponen: `App\Livewire\Public\Tasks\Submit`
+  - Input: ID Peserta (lookup otomatis identitas & status verifikasi), JID, JJID, berkas PDF Tugas JOTA Digital (maks. 10 MB), berkas PDF Tugas JOTI (maks. 10 MB), Catatan (opsional).
+  - Mendukung pengiriman tugas baru maupun pembaruan berkas revisi.
+- **Halaman Cek Penilaian Tugas (Publik)**:
+  - Route: `/tugas/status` (`tasks.status`)
+  - Komponen: `App\Livewire\Public\Tasks\CheckStatus`
+  - Memantau rincian evaluasi Tugas JOTA Digital, Tugas JOTI, catatan reviewer, berkas laporan PDF, serta Status Akhir tugas peserta.
+- **Halaman Penilaian Tugas (Admin)**:
+  - Route: `/admin/tasks` (`admin.tasks.index`)
+  - Komponen: `App\Livewire\Admin\Tasks\Index`
+  - Filter status akhir, pencarian, dan modal penilaian terperinci untuk Tugas JOTA Digital, Tugas JOTI, dan penetapan Status Akhir.
+- **Unduh Dokumen Tugas**:
+  - Route: `/tugas/dokumen/{submission}/{type}` (`tasks.download`)
+  - Dilindungi otentikasi admin atau verifikasi kode ID Peserta yang bersangkutan.

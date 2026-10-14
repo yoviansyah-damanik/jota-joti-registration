@@ -74,6 +74,31 @@ class DownloadController extends Controller
     }
 
     /**
+     * Unduh atau pratinjau berkas tugas (JOTA Digital / JOTI).
+     * Dapat diakses admin atau publik yang menyertakan kode ID peserta yang cocok.
+     */
+    public function taskDocument(Request $request, \App\Models\TaskSubmission $submission, string $type)
+    {
+        $path = $type === 'jota' ? $submission->jota_file_path : $submission->joti_file_path;
+        $disk = Storage::disk('local');
+        abort_unless($path && $disk->exists($path), 404);
+
+        if (! auth()->check() || ! auth()->user()->is_admin) {
+            $code = $request->query('code');
+            abort_unless($code && strtoupper(trim($code)) === strtoupper($submission->participant->attendance_code), 403);
+        }
+
+        $typeName = $type === 'jota' ? 'Tugas-JOTA-Digital' : 'Tugas-JOTI';
+        $filename = $submission->participant->attendance_code.' - '.$typeName.' - '.$submission->participant->full_name.'.pdf';
+
+        if ($request->boolean('inline')) {
+            return $disk->response($path, $filename, ['Content-Type' => 'application/pdf'], 'inline');
+        }
+
+        return $disk->download($path, $filename);
+    }
+
+    /**
      * Unduh berkas logo resmi JOTA-JOTI.
      */
     public function officialLogo(SettingService $settings)

@@ -85,7 +85,7 @@ class RegistrationDraft
     {
         return match ($step) {
             1 => $this->troop() !== [],
-            2 => $this->participants() !== [] && $this->file(DocumentType::ParticipantsExcel) !== null,
+            2 => $this->participants() !== [],
             3 => $this->file(DocumentType::AssignmentLetter) !== null && $this->file(DocumentType::PaymentProof) !== null,
             default => false,
         };

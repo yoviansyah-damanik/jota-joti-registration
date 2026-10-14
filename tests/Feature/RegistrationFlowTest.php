@@ -262,6 +262,9 @@ class RegistrationFlowTest extends TestCase
 
     public function test_manual_participant_entry_in_step_2_without_kta(): void
     {
+        $draft = app(\App\Support\RegistrationDraft::class);
+        $draft->put('troop', ['troop_number' => '01-083', 'troop_name' => 'Gudep 01-083']);
+
         Livewire::withoutLazyLoading()->test(Step2ParticipantUpload::class)
             ->call('openManualModal')
             ->assertSet('showManualModal', true)
@@ -272,6 +275,29 @@ class RegistrationFlowTest extends TestCase
             ->call('addManualParticipant')
             ->assertHasNoErrors()
             ->assertSet('showManualModal', false)
-            ->assertCount('rows', 1);
+            ->assertCount('rows', 1)
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertDispatched('step-completed');
+
+        $this->assertSame(3, $draft->currentStep());
+    }
+
+    public function test_user_can_reset_entire_wizard_globally(): void
+    {
+        session()->put('registration.agreed', true);
+        $draft = app(\App\Support\RegistrationDraft::class);
+        $draft->put('troop', ['troop_name' => 'Gudep Lama']);
+        $draft->put('participants', [
+            ['row' => 2, 'kta_number' => 'KTA-1', 'full_name' => 'Peserta 1', 'birth_date' => '2010-01-01', 'gender' => 'L', 'errors' => []],
+        ]);
+
+        Livewire::test(\App\Livewire\Public\Registration\Wizard::class)
+            ->call('resetDraft')
+            ->assertRedirect(route('register'));
+
+        $this->assertSame([], $draft->troop());
+        $this->assertSame([], $draft->participants());
+        $this->assertTrue(session('registration.agreed'));
     }
 }

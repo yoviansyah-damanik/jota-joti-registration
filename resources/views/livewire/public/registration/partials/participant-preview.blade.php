@@ -4,7 +4,7 @@
 @endforeach
 
 @if ($rows !== [])
-    @php $invalid = collect($rows)->filter(fn ($row) => $row['errors'] !== [])->count(); @endphp
+    @php $invalid = collect($rows)->filter(fn ($row) => ($row['errors'] ?? []) !== [])->count(); @endphp
 
     <div class="flex flex-wrap items-center gap-2 text-sm">
         <span class="badge badge-soft badge-neutral">{{ __(':count rows', ['count' => count($rows)]) }}</span>
@@ -32,18 +32,18 @@
             </thead>
             <tbody>
                 @foreach ($rows as $row)
-                    <tr @class(['bg-error/10' => $row['errors'] !== []]) wire:key="row-{{ $row['row'] ?? $loop->index }}">
+                    <tr @class(['bg-error/10' => ($row['errors'] ?? []) !== []]) wire:key="row-{{ $row['row'] ?? $loop->index }}">
                         <td class="text-base-content/50">{{ $row['row'] ?? ($loop->iteration) }}</td>
                         <td class="font-mono">{{ $row['kta_number'] ?: '-' }}</td>
                         <td class="font-semibold">{{ $row['full_name'] }}</td>
                         <td>{{ $row['birth_date'] ?? $row['birth_date_raw'] }}</td>
                         <td>{{ $row['gender'] ?? $row['gender_raw'] }}</td>
                         <td>
-                            @if ($row['errors'] === [])
+                            @if (($row['errors'] ?? []) === [])
                                 <x-ui.icon name="check-circle" class="text-success size-5" />
                             @else
                                 <ul class="text-error text-xs">
-                                    @foreach ($row['errors'] as $error)
+                                    @foreach (($row['errors'] ?? []) as $error)
                                         <li>{{ $error }}</li>
                                     @endforeach
                                 </ul>

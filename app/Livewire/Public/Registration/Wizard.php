@@ -38,6 +38,23 @@ class Wizard extends Component
         }
     }
 
+    /**
+     * Mereset seluruh formulir pendaftaran wizard dan kembali ke Langkah 1.
+     */
+    public function resetDraft(RegistrationDraft $draft): void
+    {
+        $draft->clear();
+        session()->put('registration.agreed', true);
+        $this->step = 1;
+
+        $this->dispatch('toast', [
+            'type' => 'info',
+            'message' => __('Formulir pendaftaran telah direset. Silakan mulai kembali dari Langkah 1.'),
+        ]);
+
+        $this->redirect(route('register'), navigate: true);
+    }
+
     public function render(RegistrationDraft $draft, SettingService $settings)
     {
         return view('livewire.public.registration.wizard', [

@@ -1,5 +1,26 @@
 # Version Release Notes
 
+## Release v1.4.0 (2026-10-14)
+
+### Major Enhancements & New Features
+
+1. **Task Submission & Assessment System (Pengiriman & Penilaian Tugas JOTA-JOTI)**:
+   - **Form Pengiriman Tugas (`/tugas`)**: Peserta dapat mengirimkan laporan tugas dengan memasukkan ID Peserta (verifikasi otomatis), JID, JJID, berkas PDF Tugas JOTA Digital (maks. 10 MB), berkas PDF Tugas JOTI (maks. 10 MB), dan catatan opsional. Mendukung pengiriman baru maupun perbaikan tugas revisi.
+   - **Halaman Pemantauan Tugas (`/tugas/status`)**: Peserta dapat mengecek evaluasi tugas secara mandiri berdasarkan ID Peserta, melihat status Tugas JOTA Digital, Tugas JOTI, Status Akhir, catatan evaluasi, serta tautan berkas tugas.
+   - **Halaman Penilaian Tugas Admin (`/admin/tasks`)**: Panel admin untuk mengevaluasi tugas, meninjau berkas PDF secara langsung, serta memberikan status *Ditolak*, *Revisi*, atau *Selesai* pada Tugas JOTA Digital, Tugas JOTI, dan penetapan Status Akhir.
+   - **Pengunduhan Aman Dokumen Tugas (`/tugas/dokumen/{submission}/{type}`)**: Dilindungi hak akses admin atau otentikasi ID Peserta yang bersangkutan.
+
+2. **Perbaikan Transisi Langkah Peserta Manual**:
+   - Memperbaiki `RegistrationDraft::isStepComplete(2)` agar peserta yang ditambahkan secara manual tanpa melampirkan berkas Excel dapat langsung melanjutkan ke Langkah 3 dan menyelesaikan registrasi.
+
+3. **Fitur Reset Pendaftaran Global pada Wizard**:
+   - Tombol **Reset Pendaftaran** diletakkan secara global pada header wizard dan panel samping desktop, dengan tampilan *highlight* aksen error/rose, efek interaktif animasi putar ikon, dan dialog konfirmasi keamanan browser.
+
+### Test Coverage
+- 84 automated feature and unit tests passing (`100% pass`).
+
+---
+
 ## Release v1.3.0 (2026-10-14)
 
 ### Major Enhancements & Updates

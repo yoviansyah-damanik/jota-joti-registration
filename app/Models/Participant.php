@@ -39,6 +39,11 @@ class Participant extends Model
         return $this->hasMany(Attendance::class);
     }
 
+    public function taskSubmission(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(TaskSubmission::class);
+    }
+
     /**
      * Hanya peserta dari gudep yang sudah diverifikasi.
      */

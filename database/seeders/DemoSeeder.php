@@ -5,10 +5,12 @@ namespace Database\Seeders;
 use App\Enums\AttendanceStatus;
 use App\Enums\DocumentType;
 use App\Enums\ScoutUnit;
+use App\Enums\TaskStatus;
 use App\Enums\TroopStatus;
 use App\Models\Attendance;
 use App\Models\AttendanceSession;
 use App\Models\Participant;
+use App\Models\TaskSubmission;
 use App\Models\Troop;
 use App\Models\User;
 use App\Services\GroupAssignmentService;
@@ -132,6 +134,7 @@ class DemoSeeder extends Seeder
 
         $batch = $assignments->assign($admin);
         $this->seedAttendance($admin);
+        $this->seedTaskSubmissions($admin);
 
         $this->command?->info(sprintf(
             'Demo: %d gudep, %d peserta, %d peserta mendapat nomor grup.',
@@ -344,5 +347,52 @@ class DemoSeeder extends Seeder
             ['SMK Swasta Kesehatan Padangsidimpuan', 'sma'],
             ['Pondok Pesantren Al-Abraar Padangsidimpuan', 'sma'],
         ];
+    }
+
+    private function seedTaskSubmissions(?User $admin): void
+    {
+        $participants = Participant::fromVerifiedTroops()->inRandomOrder()->take(12)->get();
+        if ($participants->isEmpty()) {
+            return;
+        }
+
+        $disk = Storage::disk('local');
+        $dummyPdf = DemoDocuments::pdf(['LAPORAN TUGAS JOTA-JOTI', 'Kwarcab Kota Padangsidimpuan']);
+
+        $jotaPath = 'tasks/jota/demo-jota.pdf';
+        $jotiPath = 'tasks/joti/demo-joti.pdf';
+        $disk->put($jotaPath, $dummyPdf);
+        $disk->put($jotiPath, $dummyPdf);
+
+        $statusPlans = [
+            TaskStatus::Completed,
+            TaskStatus::Completed,
+            TaskStatus::Completed,
+            TaskStatus::Pending,
+            TaskStatus::Pending,
+            TaskStatus::Revision,
+            TaskStatus::Revision,
+            TaskStatus::Rejected,
+        ];
+
+        foreach ($participants as $i => $participant) {
+            $status = $statusPlans[$i % count($statusPlans)];
+            TaskSubmission::create([
+                'participant_id' => $participant->id,
+                'jid' => 'YB6'.fake()->regexify('[A-Z]{3}'),
+                'jjid' => 'JJ_'.fake()->regexify('[A-Z0-9]{5}'),
+                'jota_file_path' => $jotaPath,
+                'joti_file_path' => $jotiPath,
+                'notes' => fake()->boolean(60) ? 'Laporan pelaksanaan kegiatan JOTA dan JOTI.' : null,
+                'jota_status' => $status,
+                'jota_admin_note' => $status === TaskStatus::Revision ? 'Laporan logsheet QSO perlu dilengkapi format RST.' : ($status === TaskStatus::Completed ? 'Logsheet QSO lengkap dan valid.' : null),
+                'joti_status' => $status === TaskStatus::Rejected ? TaskStatus::Rejected : TaskStatus::Completed,
+                'joti_admin_note' => $status === TaskStatus::Completed ? 'Bukti interaksi IRC / ScoutLink terverifikasi.' : null,
+                'final_status' => $status,
+                'admin_notes' => $status === TaskStatus::Revision ? 'Mohon unggah perbaikan tugas sesuai arahan panitia.' : null,
+                'assessed_by' => $status !== TaskStatus::Pending ? $admin?->id : null,
+                'assessed_at' => $status !== TaskStatus::Pending ? now()->subHours(fake()->numberBetween(1, 48)) : null,
+            ]);
+        }
     }
 }

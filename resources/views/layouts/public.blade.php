@@ -9,6 +9,8 @@
             $navLinks = [
                 ['route' => 'home', 'icon' => 'home', 'label' => __('Requirements')],
                 ['route' => 'status', 'icon' => 'search', 'label' => __('Check Status')],
+                ['route' => 'tasks.submit', 'icon' => 'upload', 'label' => __('Kirim Tugas')],
+                ['route' => 'tasks.status', 'icon' => 'clipboard-check', 'label' => __('Cek Tugas')],
             ];
         @endphp
 

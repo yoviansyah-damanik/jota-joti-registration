@@ -90,6 +90,11 @@ class Troop extends Model
         $query->where('status', TroopStatus::Verified);
     }
 
+    public function isVerified(): bool
+    {
+        return $this->status === TroopStatus::Verified;
+    }
+
     /**
      * Gudep yang memiliki salah satu nomor yang diberikan (nomor pertama atau pasangannya).
      */

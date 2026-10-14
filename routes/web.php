@@ -47,6 +47,11 @@ Route::get('/sertifikat/{code}/peserta/{participant?}', [CertificateController::
     ->middleware(['throttle:20,1', 'certificates.published'])
     ->name('certificates.participants');
 
+// Pengiriman dan Cek Penilaian Tugas
+Route::livewire('/tugas', Public\Tasks\Submit::class)->name('tasks.submit');
+Route::livewire('/tugas/status', Public\Tasks\CheckStatus::class)->name('tasks.status');
+Route::get('/tugas/dokumen/{submission}/{type}', [DownloadController::class, 'taskDocument'])->name('tasks.download');
+
 // Admin
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::livewire('/login', Admin\Auth\Login::class)->middleware('guest')->name('login');
@@ -67,6 +72,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::livewire('/groups/details', Admin\Groups\Details::class)->name('groups.details');
         Route::livewire('/attendance', Admin\Attendance\Index::class)->name('attendance.index');
         Route::livewire('/attendance/sessions', Admin\Attendance\Sessions::class)->name('attendance.sessions');
+        Route::livewire('/tasks', Admin\Tasks\Index::class)->name('tasks.index');
         Route::livewire('/reports/payments', Admin\Reports\Payments::class)->name('reports.payments');
         Route::livewire('/settings', Admin\Settings::class)->name('settings');
 
