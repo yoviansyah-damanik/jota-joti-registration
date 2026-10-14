@@ -8,7 +8,6 @@
         ['route' => 'admin.attendance.sessions', 'match' => 'admin.attendance.sessions', 'icon' => 'table', 'label' => __('Attendance Sessions')],
         ['route' => 'admin.tasks.index', 'match' => 'admin.tasks.*', 'icon' => 'document', 'label' => __('Penilaian Tugas')],
         ['route' => 'admin.settings', 'match' => 'admin.settings', 'icon' => 'cog', 'label' => __('Settings')],
-        ['route' => 'admin.profile', 'match' => 'admin.profile', 'icon' => 'user', 'label' => __('Edit Profile')],
     ];
     $user = auth()->user();
 @endphp
@@ -37,7 +36,7 @@
     </ul>
 
     <div class="p-3">
-        <div class="bg-base-200 flex items-center gap-2 rounded-xl p-2.5">
+        <div @class(['bg-base-200 flex items-center gap-2 rounded-xl p-2.5 transition', 'ring-2 ring-primary/80 bg-primary/10' => request()->routeIs('admin.profile')])>
             <a href="{{ route('admin.profile') }}" wire:navigate class="flex items-center gap-2.5 min-w-0 flex-1 hover:opacity-80 transition-opacity" title="{{ __('Edit Profile') }}">
                 <span class="bg-primary text-primary-content flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-bold">
                     {{ \Illuminate\Support\Str::of($user?->name)->substr(0, 1)->upper() }}

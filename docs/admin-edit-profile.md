@@ -9,9 +9,9 @@ Halaman edit profile memungkinkan pengguna admin mengelola informasi akun dan ka
 2. **Ubah Kata Sandi**:
    - Verifikasi kata sandi saat ini (`current_password`).
    - Kata sandi baru minimal 8 karakter dengan konfirmasi.
-3. **Akses Cepat**:
-   - Menu **Edit Profile** di sidebar.
-   - Kartu info profil pengguna di footer sidebar dapat langsung diklik untuk membuka halaman profil.
+3. **Akses Langsung**:
+   - Kartu profil admin di bagian bawah (footer) sidebar dapat langsung diklik untuk menuju ke halaman edit profile.
+   - Dilengkapi efek hover dan penanda visual aktif saat sedang berada di halaman profil.
 
 ## Komponen & Rute
 - **Livewire**: `App\Livewire\Admin\Profile`
