@@ -306,19 +306,19 @@
 
                 <div class="text-center flex flex-col justify-between p-1">
                     <p class="text-[11px]">
-                        {{ $settings->get('certificate_city') ?: 'Kota Pelaksana' }},
-                        ..................................... {{ now()->year }}
+                        {{ $settings->get('certificate_city') ?: 'Padangsidimpuan' }},
+                        @if ($session)
+                            {{ $session->date->translatedFormat('d F Y') }}
+                        @else
+                            ..................................... {{ now()->year }}
+                        @endif
                     </p>
                     <p class="font-semibold text-xs -mt-1">
-                        @if ($isTroop)
-                            {{ __('Troop Leader / Officer in Charge') }}
-                        @else
-                            {{ __('Station Instructor / Checkpoint Officer') }}
-                        @endif
+                        {{ __('Attendance Administrator') }}
                     </p>
                     <div class="h-12"></div>
                     <div>
-                        <p class="font-bold underline text-xs">( ............................................................................ )</p>
+                        <p class="font-bold text-xs tracking-wider">..................................................</p>
                         <p class="text-[10px] text-base-content/70 mt-0.5">NTA / Call Sign: ............................................</p>
                     </div>
                 </div>

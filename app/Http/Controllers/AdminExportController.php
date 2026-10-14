@@ -79,6 +79,7 @@ class AdminExportController extends Controller
             'session' => $session,
             'eventName' => $settings->get('event_name'),
             'organizationName' => $settings->get('organization_name'),
+            'settings' => $settings,
             'troops' => $participants->groupBy('troop_id'),
         ]);
     }

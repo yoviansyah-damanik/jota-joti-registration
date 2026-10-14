@@ -74,11 +74,16 @@
                 <tr class="font-semibold"><td>{{ __('Total present') }}</td><td class="text-center">{{ $presentMale + $presentFemale }}</td></tr>
             </table>
 
-            <div class="mt-10 flex justify-end">
-                <div class="w-56 text-center">
-                    <p>{{ __('Troop leader') }}</p>
-                    <div class="h-20"></div>
-                    <p class="border-t border-black pt-1">&nbsp;</p>
+            <div class="mt-8 flex justify-end">
+                <div class="w-64 text-center">
+                    <p class="text-xs">
+                        {{ $settings->get('certificate_city') ?: 'Padangsidimpuan' }},
+                        {{ $session->date->translatedFormat('d F Y') }}
+                    </p>
+                    <p class="font-semibold text-xs mt-0.5">{{ __('Attendance Administrator') }}</p>
+                    <div class="h-14"></div>
+                    <p class="font-bold text-xs tracking-wider">..................................................</p>
+                    <p class="text-[10px] text-base-content/70 mt-1">NTA / Call Sign: ............................................</p>
                 </div>
             </div>
         </section>
