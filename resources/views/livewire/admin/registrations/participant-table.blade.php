@@ -36,9 +36,13 @@
                         <td>
                             <x-ui.group-badge :number="$participant->group_number" />
                         </td>
-                        <td class="text-right">
+                        <td class="text-right whitespace-nowrap">
+                            <button type="button" class="btn btn-ghost btn-xs text-primary btn-square" wire:click="openEditModal('{{ $participant->id }}')" title="{{ __('Edit') }}" aria-label="{{ __('Edit') }}">
+                                <x-ui.icon name="pencil" class="size-4" />
+                            </button>
                             <button type="button" class="btn btn-ghost btn-xs text-error btn-square" wire:click="deleteParticipant('{{ $participant->id }}')"
                                 x-confirm="{ message: @js(__('Delete participant :name?', ['name' => $participant->full_name])), tone: 'error', confirm: @js(__('Delete')) }"
+                                title="{{ __('Delete') }}"
                                 aria-label="{{ __('Delete') }}">
                                 <x-ui.icon name="trash" class="size-4" />
                             </button>
@@ -83,6 +87,56 @@
                 </form>
             </div>
             <div class="modal-backdrop" wire:click="closeAddModal"><button type="button">close</button></div>
+        </dialog>
+    @endif
+
+    @if ($showEditModal)
+        <dialog class="modal modal-open">
+            <div class="modal-box max-w-lg">
+                <div class="flex items-center justify-between pb-3 border-b border-base-200">
+                    <h3 class="text-lg font-bold flex items-center gap-2">
+                        <x-ui.icon name="pencil" class="size-5 text-primary" />
+                        {{ __('Edit Participant') }}
+                    </h3>
+                    <button type="button" class="btn btn-ghost btn-sm btn-circle" wire:click="closeEditModal">✕</button>
+                </div>
+
+                <form wire:submit="updateParticipant" class="space-y-4 pt-4">
+                    <x-ui.input :label="__('Full name')" name="full_name" wire:model="full_name" required autofocus />
+
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <x-ui.input :label="__('Date of birth')" name="birth_date" type="date" wire:model="birth_date" required />
+
+                        <x-ui.select :label="__('Gender')" name="gender" wire:model="gender" :options="['L' => __('Male'), 'P' => __('Female')]" required />
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <x-ui.input :label="__('KTA number')" name="kta_number" wire:model="kta_number" :hint="__('Optional, leave blank if not available.')" placeholder="contoh: 12.01.00.0001" />
+
+                        <div>
+                            <label class="label pb-1">
+                                <span class="label-text font-medium">{{ __('Group') }}</span>
+                            </label>
+                            <select wire:model="group_number" class="select select-bordered w-full">
+                                <option value="">{{ __('Unassigned') }}</option>
+                                @foreach ($allowedGroups as $g)
+                                    <option value="{{ $g }}">{{ __('Group') }} {{ $g }}</option>
+                                @endforeach
+                            </select>
+                            <span class="text-base-content/60 text-xs mt-1 block">{{ __('Select group number for this participant.') }}</span>
+                        </div>
+                    </div>
+
+                    <div class="modal-action pt-2">
+                        <button type="button" class="btn btn-ghost" wire:click="closeEditModal">{{ __('Cancel') }}</button>
+                        <button type="submit" class="btn btn-primary" wire:loading.class="pointer-events-none opacity-70">
+                            <span wire:loading wire:target="updateParticipant" class="loading loading-spinner loading-sm"></span>
+                            {{ __('Save changes') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-backdrop" wire:click="closeEditModal"><button type="button">close</button></div>
         </dialog>
     @endif
 </x-ui.card>

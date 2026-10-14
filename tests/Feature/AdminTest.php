@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\AttendanceStatus;
 use App\Enums\DocumentType;
+use App\Enums\Gender;
 use App\Enums\TroopStatus;
 use App\Livewire\Admin\Attendance\Index as AttendanceIndex;
 use App\Livewire\Admin\Auth\Login;
@@ -210,6 +211,41 @@ class AdminTest extends TestCase
         $this->assertSame('2010-05-15', $participant->birth_date->toDateString());
         // karena troop terverifikasi, ID peserta langsung diterbitkan
         $this->assertNotNull($participant->attendance_code);
+    }
+
+    public function test_admin_can_edit_participant_details_and_group(): void
+    {
+        $troop = Troop::factory()->verified()->create();
+        $participant = Participant::factory()->for($troop)->create([
+            'full_name' => 'Nama Lama',
+            'birth_date' => '2010-01-01',
+            'gender' => Gender::Male,
+            'kta_number' => '12.01.0001',
+            'group_number' => null,
+        ]);
+
+        Livewire::actingAs($this->admin())
+            ->test(ParticipantTable::class, ['troopId' => $troop->id])
+            ->call('openEditModal', $participant->id)
+            ->assertSet('showEditModal', true)
+            ->assertSet('full_name', 'Nama Lama')
+            ->assertSet('kta_number', '12.01.0001')
+            ->set('full_name', 'Nama Baru Diedit')
+            ->set('birth_date', '2010-08-20')
+            ->set('gender', 'P')
+            ->set('kta_number', '12.01.9999')
+            ->set('group_number', 3)
+            ->call('updateParticipant')
+            ->assertHasNoErrors()
+            ->assertSet('showEditModal', false)
+            ->assertDispatched('troop-participants-updated');
+
+        $participant->refresh();
+        $this->assertSame('Nama Baru Diedit', $participant->full_name);
+        $this->assertSame('2010-08-20', $participant->birth_date->toDateString());
+        $this->assertSame(Gender::Female, $participant->gender);
+        $this->assertSame('12.01.9999', $participant->kta_number);
+        $this->assertSame(3, $participant->group_number);
     }
 
     public function test_admin_can_delete_participant(): void

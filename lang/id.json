@@ -553,5 +553,9 @@
     "Rows/Sheet": "Baris/Lembar",
     "Rows/Sheet (Full A4)": "Baris/Lembar (A4 Penuh)",
     "Rows/Sheet (Dense)": "Baris/Lembar (Rapat)",
-    "Attendance Administrator": "Administrator Absensi"
+    "Attendance Administrator": "Administrator Absensi",
+    "Edit Participant": "Edit Peserta",
+    "Save changes": "Simpan Perubahan",
+    "Participant updated successfully.": "Data peserta berhasil diperbarui.",
+    "Select group number for this participant.": "Pilih nomor grup untuk peserta ini."
 }
