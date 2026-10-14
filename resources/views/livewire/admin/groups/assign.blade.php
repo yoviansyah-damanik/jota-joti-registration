@@ -1,5 +1,11 @@
 <div class="space-y-6">
     <x-ui.page-header :title="__('Group Numbers')" :subtitle="__('Randomly assign group numbers to participants of verified troops.')">
+        <a href="{{ route('admin.print.attendance.manual', ['group_by' => 'group']) }}" target="_blank" class="btn btn-outline btn-sm">
+            <x-ui.icon name="printer" class="size-4" /> {{ __('Print Group Attendance') }}
+        </a>
+        <a href="{{ route('admin.groups.details') }}" wire:navigate class="btn btn-primary btn-sm">
+            <x-ui.icon name="user-group" class="size-4" /> {{ __('Group Breakdown Details') }}
+        </a>
         <a href="{{ route('admin.exports.participants', ['verified' => 1]) }}" class="btn btn-secondary btn-sm">
             <x-ui.icon name="download" class="size-4" /> {{ __('Export result') }}
         </a>
@@ -7,14 +13,28 @@
 
     <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
         <x-ui.card :title="__('Generate')" icon="sparkles">
-            <dl class="grid grid-cols-2 gap-y-2 text-sm">
-                <dt class="text-base-content/60">{{ __('Group numbers') }}</dt>
-                <dd class="font-medium">1 – {{ $maxGroupNumber }}</dd>
-                <dt class="text-base-content/60">{{ __('Min. per number per troop') }}</dt>
-                <dd class="font-medium">{{ $minPerNumber }}</dd>
-                <dt class="text-base-content/60">{{ __('Verified troops') }}</dt>
-                <dd class="font-medium">{{ $verifiedTroops }}</dd>
-            </dl>
+            <div class="space-y-2 text-xs">
+                <div class="flex items-center justify-between border-b border-base-200 pb-2">
+                    <span class="text-base-content/70">{{ __('Penggalang block') }}</span>
+                    <span class="font-semibold text-sky-700 dark:text-sky-300">
+                        {{ __('Grup') }} {{ min($penggalangGroups) }}–{{ max($penggalangGroups) }} ({{ count($penggalangGroups) }})
+                    </span>
+                </div>
+                <div class="flex items-center justify-between border-b border-base-200 pb-2">
+                    <span class="text-base-content/70">{{ __('Penegak block') }}</span>
+                    <span class="font-semibold text-emerald-700 dark:text-emerald-300">
+                        {{ __('Grup') }} {{ min($penegakGroups) }}–{{ max($penegakGroups) }} ({{ count($penegakGroups) }})
+                    </span>
+                </div>
+                <div class="flex items-center justify-between border-b border-base-200 pb-2">
+                    <span class="text-base-content/70">{{ __('Min. per number') }}</span>
+                    <span class="font-semibold">{{ $minPerNumber }}</span>
+                </div>
+                <div class="flex items-center justify-between pb-1">
+                    <span class="text-base-content/70">{{ __('Verified troops') }}</span>
+                    <span class="font-semibold">{{ $verifiedTroops }}</span>
+                </div>
+            </div>
             <a href="{{ route('admin.settings') }}" wire:navigate class="link link-hover text-xs">{{ __('Change configuration') }}</a>
 
             <label class="label cursor-pointer gap-2">

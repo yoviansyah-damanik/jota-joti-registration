@@ -3,7 +3,7 @@
         ['route' => 'admin.dashboard', 'match' => 'admin.dashboard', 'icon' => 'home', 'label' => __('Dashboard')],
         ['route' => 'admin.registrations.index', 'match' => 'admin.registrations.*', 'icon' => 'clipboard-check', 'label' => __('Registrations')],
         ['route' => 'admin.reports.payments', 'match' => 'admin.reports.*', 'icon' => 'banknotes', 'label' => __('Fee Report')],
-        ['route' => 'admin.groups', 'match' => 'admin.groups', 'icon' => 'user-group', 'label' => __('Group Numbers')],
+        ['route' => 'admin.groups', 'match' => 'admin.groups*', 'icon' => 'user-group', 'label' => __('Group Numbers')],
         ['route' => 'admin.attendance.index', 'match' => 'admin.attendance.index', 'icon' => 'check-circle', 'label' => __('Attendance')],
         ['route' => 'admin.attendance.sessions', 'match' => 'admin.attendance.sessions', 'icon' => 'table', 'label' => __('Attendance Sessions')],
         ['route' => 'admin.settings', 'match' => 'admin.settings', 'icon' => 'cog', 'label' => __('Settings')],
@@ -17,7 +17,10 @@
         <div class="min-w-0">
             <p class="text-sm font-extrabold leading-tight">{{ $eventName }}</p>
             <p class="text-base-content/60 text-xs leading-tight">{{ $organizationName }}</p>
-            <p class="text-primary mt-0.5 text-xs font-semibold">{{ __('Admin') }}</p>
+            <div class="mt-0.5 flex items-center gap-1.5">
+                <span class="text-primary text-xs font-semibold">{{ __('Admin') }}</span>
+                <span class="badge badge-ghost badge-xs font-mono font-medium opacity-70">v{{ config('app.version') }}</span>
+            </div>
         </div>
     </div>
 

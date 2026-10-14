@@ -1,5 +1,8 @@
 <div class="space-y-6">
     <x-ui.page-header :title="__('Attendance')" :subtitle="__('Attendance of participants from verified registrations.')">
+        <a href="{{ route('admin.print.attendance.manual', array_filter(['session_id' => $session?->id, 'troop_id' => $troopId, 'group_number' => $groupNumber])) }}" target="_blank" class="btn btn-outline btn-primary btn-sm">
+            <x-ui.icon name="printer" class="size-4" /> {{ __('Print Manual Attendance') }}
+        </a>
         @if ($session)
             <a href="{{ route('admin.print.attendance', ['session' => $session, 'troop_id' => $troopId, 'group_number' => $groupNumber]) }}" target="_blank" class="btn btn-ghost btn-sm">
                 <x-ui.icon name="printer" class="size-4" /> {{ __('Print sheet') }}

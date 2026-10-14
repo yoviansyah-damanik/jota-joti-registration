@@ -3,20 +3,38 @@
 namespace App\Livewire\Admin;
 
 use App\Services\SettingService;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.admin')]
 class Settings extends Component
 {
+    use WithFileUploads;
+
+    public $logo = null;
+
+    public ?string $currentLogoUrl = null;
+
+    public bool $hasCustomLogo = false;
+
     public string $event_name = '';
 
     public string $organization_name = '';
 
-    public bool $registration_open = true;
+    public bool $registration_open = false;
 
-    public int $max_group_number = 5;
+    public int $penggalang_group_count = 5;
+
+    public int $penegak_group_count = 5;
+
+    public int $penggalang_start_number = 1;
+
+    public ?int $penegak_start_number = null;
+
+    public int $max_group_number = 10;
 
     public int $min_per_number = 1;
 
@@ -36,14 +54,41 @@ class Settings extends Component
 
     public string $certificate_city = '';
 
+    public function penggalangRange(): string
+    {
+        $start = max(1, (int) $this->penggalang_start_number);
+        $count = max(1, (int) $this->penggalang_group_count);
+        $end = $start + $count - 1;
+
+        return $start === $end ? "Grup {$start}" : "Grup {$start} – {$end} ({$count} grup)";
+    }
+
+    public function penegakRange(): string
+    {
+        $pCount = max(1, (int) $this->penggalang_group_count);
+        $pStart = max(1, (int) $this->penggalang_start_number);
+        $start = (int) $this->penegak_start_number > 0 ? (int) $this->penegak_start_number : ($pStart + $pCount);
+        $count = max(1, (int) $this->penegak_group_count);
+        $end = $start + $count - 1;
+
+        return $start === $end ? "Grup {$start}" : "Grup {$start} – {$end} ({$count} grup)";
+    }
+
     public function mount(SettingService $settings): void
     {
         $values = $settings->all();
+
+        $this->currentLogoUrl = $settings->logoUrl();
+        $this->hasCustomLogo = $settings->hasCustomLogo();
 
         $this->fill([
             'event_name' => (string) $values['event_name'],
             'organization_name' => (string) $values['organization_name'],
             'registration_open' => $settings->registrationOpen(),
+            'penggalang_group_count' => $settings->penggalangGroupCount(),
+            'penegak_group_count' => $settings->penegakGroupCount(),
+            'penggalang_start_number' => $settings->penggalangStartNumber(),
+            'penegak_start_number' => (int) $values['penegak_start_number'] ?: null,
             'max_group_number' => $settings->maxGroupNumber(),
             'min_per_number' => $settings->minPerNumber(),
             'registration_fee' => (int) $values['registration_fee'],
@@ -63,7 +108,10 @@ class Settings extends Component
             'event_name' => ['required', 'string', 'max:100'],
             'organization_name' => ['required', 'string', 'max:100'],
             'registration_open' => ['boolean'],
-            'max_group_number' => ['required', 'integer', 'min:1', 'max:50'],
+            'penggalang_group_count' => ['required', 'integer', 'min:1', 'max:50'],
+            'penegak_group_count' => ['required', 'integer', 'min:1', 'max:50'],
+            'penggalang_start_number' => ['required', 'integer', 'min:1', 'max:100'],
+            'penegak_start_number' => ['nullable', 'integer', 'min:1', 'max:100'],
             'min_per_number' => ['required', 'integer', 'min:0', 'max:20'],
             'registration_fee' => ['required', 'integer', 'min:0'],
             'bank_account_info' => ['nullable', 'string', 'max:500'],
@@ -75,6 +123,12 @@ class Settings extends Component
             'certificate_city' => [Rule::requiredIf($this->event_completed), 'nullable', 'string', 'max:60'],
         ]);
 
+        $penegakStart = $this->penegak_start_number ?: ($this->penggalang_start_number + $this->penggalang_group_count);
+        $data['max_group_number'] = max(
+            $this->penggalang_start_number + $this->penggalang_group_count - 1,
+            $penegakStart + $this->penegak_group_count - 1,
+        );
+
         // tanggal sertifikat = tanggal kegiatan dinyatakan selesai (tidak berubah bila disimpan ulang)
         $data['event_completed_at'] = match (true) {
             ! $this->event_completed => '',
@@ -82,9 +136,47 @@ class Settings extends Component
             default => now()->toDateString(),
         };
 
+        // Unggah logo resmi baru jika disediakan
+        if ($this->logo) {
+            $this->validate([
+                'logo' => ['image', 'max:2048', 'mimes:png,jpg,jpeg,webp,svg'],
+            ]);
+
+            // Hapus logo kustom lama jika ada
+            $oldPath = $settings->get('official_logo_path');
+            if ($oldPath && Storage::disk('public')->exists($oldPath)) {
+                Storage::disk('public')->delete($oldPath);
+            }
+
+            $storedPath = $this->logo->store('logos', 'public');
+            $data['official_logo_path'] = $storedPath;
+        }
+
         $settings->save($data);
 
+        $this->currentLogoUrl = $settings->logoUrl();
+        $this->hasCustomLogo = $settings->hasCustomLogo();
+        $this->logo = null;
+
         $this->dispatch('toast', message: __('Settings saved.'));
+    }
+
+    /**
+     * Hapus logo kustom dan kembalikan ke logo bawaan aplikasi.
+     */
+    public function deleteLogo(SettingService $settings): void
+    {
+        $oldPath = $settings->get('official_logo_path');
+        if ($oldPath && Storage::disk('public')->exists($oldPath)) {
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        $settings->save(['official_logo_path' => '']);
+        $this->currentLogoUrl = $settings->logoUrl();
+        $this->hasCustomLogo = false;
+        $this->logo = null;
+
+        $this->dispatch('toast', message: __('Logo reset to default.'));
     }
 
     public function render()

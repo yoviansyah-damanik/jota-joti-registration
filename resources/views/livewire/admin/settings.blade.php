@@ -18,14 +18,97 @@
         </x-ui.card>
 
         <div class="space-y-6">
-            <x-ui.card :title="__('Group numbers')" icon="user-group">
-                <div class="grid gap-x-4 sm:grid-cols-2">
-                    <x-ui.input :label="__('Highest group number (N)')" name="max_group_number" type="number" min="1" max="50" wire:model.live="max_group_number" :hint="__('Participants get a number from 1 to N.')" />
-                    <x-ui.input :label="__('Minimum per number per troop')" name="min_per_number" type="number" min="0" max="20" wire:model.live="min_per_number" :hint="__('Each number must be received by at least this many participants in every troop.')" />
+            <x-ui.card :title="__('Official Logo')" icon="sparkles">
+                <div class="flex flex-col items-center gap-5 sm:flex-row">
+                    <div class="bg-base-200/60 border-base-300 flex size-28 shrink-0 items-center justify-center rounded-2xl border p-3 shadow-xs">
+                        @if ($logo)
+                            <img src="{{ $logo->temporaryUrl() }}" alt="Preview" class="max-h-full max-w-full object-contain" />
+                        @else
+                            <img src="{{ $currentLogoUrl }}" alt="Official Logo" class="max-h-full max-w-full object-contain" />
+                        @endif
+                    </div>
+
+                    <div class="flex-1 space-y-2 text-center sm:text-left">
+                        <p class="text-sm font-semibold">{{ __('Upload official JOTA-JOTI logo') }}</p>
+                        <p class="text-base-content/60 text-xs">
+                            {{ __('Supported formats: PNG, JPG, WebP, SVG. Max 2 MB. This logo will appear on public pages, cards, and certificates.') }}
+                        </p>
+
+                        <div class="flex flex-wrap items-center justify-center gap-2 pt-1 sm:justify-start">
+                            <label class="btn btn-sm btn-outline btn-primary cursor-pointer">
+                                <x-ui.icon name="upload" class="size-4" />
+                                <span>{{ __('Choose Logo') }}</span>
+                                <input type="file" wire:model="logo" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="hidden" />
+                            </label>
+
+                            @if ($hasCustomLogo)
+                                <button type="button" wire:click="deleteLogo" class="btn btn-sm btn-ghost text-error"
+                                    x-confirm="{ message: @js(__('Reset official logo to default?')), tone: 'error', confirm: @js(__('Reset Logo')) }">
+                                    <x-ui.icon name="trash" class="size-4" /> {{ __('Reset to Default') }}
+                                </button>
+                            @endif
+                        </div>
+
+                        <div wire:loading wire:target="logo" class="text-primary flex items-center gap-1.5 text-xs font-medium">
+                            <span class="loading loading-spinner loading-xs"></span> {{ __('Uploading logo preview...') }}
+                        </div>
+                        @error('logo') <p class="text-error text-xs">{{ $message }}</p> @enderror
+                    </div>
                 </div>
-                <x-ui.alert type="info" class="text-sm">
-                    {{ __('Each troop must register at least :count participants (N × minimum).', ['count' => (int) $max_group_number * (int) $min_per_number]) }}
-                    {{ __('After changing N, run the group assignment again with reset.') }}
+            </x-ui.card>
+
+            <x-ui.card :title="__('Group numbers & Unit Blocking')" icon="user-group">
+                <p class="text-base-content/70 -mt-2 mb-4 text-xs">
+                    {{ __('Set separate group ranges for Penggalang and Penegak/Pandega. Members of different units are never mixed into the same group.') }}
+                </p>
+
+                <div class="space-y-4">
+                    {{-- Penggalang Block --}}
+                    <div class="rounded-xl border border-sky-500/20 bg-sky-500/5 p-4">
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <span class="badge badge-info badge-sm font-semibold uppercase tracking-wider">
+                                {{ __('Penggalang Block') }}
+                            </span>
+                            <span class="text-xs font-semibold text-sky-700 dark:text-sky-300">
+                                {{ $this->penggalangRange() }}
+                            </span>
+                        </div>
+                        <div class="grid gap-3 sm:grid-cols-2">
+                            <x-ui.input :label="__('Number of groups')" name="penggalang_group_count" type="number" min="1" max="50" wire:model.live="penggalang_group_count" required />
+                            <x-ui.input :label="__('Starting group number')" name="penggalang_start_number" type="number" min="1" max="100" wire:model.live="penggalang_start_number" required />
+                        </div>
+                    </div>
+
+                    {{-- Penegak/Pandega Block --}}
+                    <div class="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <span class="badge badge-success badge-sm font-semibold uppercase tracking-wider">
+                                {{ __('Penegak / Pandega Block') }}
+                            </span>
+                            <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                                {{ $this->penegakRange() }}
+                            </span>
+                        </div>
+                        <div class="grid gap-3 sm:grid-cols-2">
+                            <x-ui.input :label="__('Number of groups')" name="penegak_group_count" type="number" min="1" max="50" wire:model.live="penegak_group_count" required />
+                            <x-ui.input :label="__('Starting group number (optional)')" name="penegak_start_number" type="number" min="1" max="100" wire:model.live="penegak_start_number" :hint="__('Leave blank to auto-continue after Penggalang.')" />
+                        </div>
+                    </div>
+
+                    {{-- Distribution Rule --}}
+                    <div>
+                        <x-ui.input :label="__('Minimum per number per troop')" name="min_per_number" type="number" min="0" max="20" wire:model.live="min_per_number" :hint="__('Each troop is distributed evenly across its unit group block.')" />
+                    </div>
+                </div>
+
+                <x-ui.alert type="info" class="mt-4 text-xs">
+                    {{ __('Penggalang troops require at least :pcount participants (:pgroups × minimum). Penegak troops require at least :tcount participants (:tgroups × minimum).', [
+                        'pcount' => (int) $penggalang_group_count * (int) $min_per_number,
+                        'pgroups' => (int) $penggalang_group_count,
+                        'tcount' => (int) $penegak_group_count * (int) $min_per_number,
+                        'tgroups' => (int) $penegak_group_count,
+                    ]) }}
+                    <br>{{ __('After changing group counts or ranges, re-run the group assignment with reset.') }}
                 </x-ui.alert>
             </x-ui.card>
 

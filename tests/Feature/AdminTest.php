@@ -7,16 +7,20 @@ use App\Enums\DocumentType;
 use App\Enums\TroopStatus;
 use App\Livewire\Admin\Attendance\Index as AttendanceIndex;
 use App\Livewire\Admin\Auth\Login;
+use App\Livewire\Admin\Groups\Details as GroupDetails;
 use App\Livewire\Admin\Registrations\ParticipantTable;
 use App\Livewire\Admin\Registrations\Show;
+use App\Livewire\Admin\Settings;
 use App\Models\Attendance;
 use App\Models\AttendanceSession;
 use App\Models\Participant;
 use App\Models\Troop;
 use App\Models\User;
 use App\Services\AttendanceService;
+use App\Services\SettingService;
 use App\Support\GroupColor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
@@ -49,12 +53,14 @@ class AdminTest extends TestCase
             route('admin.registrations.index'),
             route('admin.registrations.show', $troop),
             route('admin.groups'),
+            route('admin.groups.details'),
             route('admin.attendance.index'),
             route('admin.attendance.sessions'),
             route('admin.settings'),
             route('admin.reports.payments'),
             route('admin.print.payments'),
             route('admin.print.attendance', $session),
+            route('admin.print.attendance.manual'),
         ] as $url) {
             $this->get($url)->assertOk();
         }
@@ -246,5 +252,156 @@ class AdminTest extends TestCase
         $this->actingAs($this->admin())
             ->get(route('admin.documents.show', $document))
             ->assertOk();
+    }
+
+    public function test_group_details_page_lists_and_filters_participants_and_matrix(): void
+    {
+        $admin = $this->admin();
+        $troop = Troop::factory()->verified()->create(['troop_name' => 'SMP Negeri 1 Padangsidimpuan']);
+
+        $p1 = Participant::factory()->for($troop)->create([
+            'full_name' => 'Ahmad Harahap',
+            'group_number' => 1,
+        ]);
+        $p2 = Participant::factory()->for($troop)->create([
+            'full_name' => 'Nurul Hasibuan',
+            'group_number' => 2,
+        ]);
+        $p3 = Participant::factory()->for($troop)->create([
+            'full_name' => 'Budi Siregar',
+            'group_number' => null,
+        ]);
+
+        // Test Livewire component
+        Livewire::actingAs($admin)->test(GroupDetails::class)
+            ->assertOk()
+            ->assertSee('Ahmad Harahap')
+            ->assertSee('Nurul Hasibuan')
+            ->assertSee('Budi Siregar')
+            // Filter by Group 1
+            ->set('group', '1')
+            ->assertSee('Ahmad Harahap')
+            ->assertDontSee('Nurul Hasibuan')
+            ->assertDontSee('Budi Siregar')
+            // Filter by Unassigned
+            ->set('group', 'unassigned')
+            ->assertSee('Budi Siregar')
+            ->assertDontSee('Ahmad Harahap')
+            // Search filter
+            ->set('group', '')
+            ->set('search', 'Ahmad')
+            ->assertSee('Ahmad Harahap')
+            ->assertDontSee('Nurul Hasibuan')
+            // Switch to Matrix view mode
+            ->set('search', '')
+            ->call('setViewMode', 'matrix')
+            ->assertSee('SMP Negeri 1 Padangsidimpuan')
+            ->assertSee(__('Troop Distribution Matrix'));
+    }
+
+    public function test_admin_can_upload_and_reset_official_logo(): void
+    {
+        Storage::fake('public');
+        $admin = $this->admin();
+
+        $file = UploadedFile::fake()->image('official-logo.png', 400, 400);
+
+        Livewire::actingAs($admin)->test(Settings::class)
+            ->set('logo', $file)
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $settings = app(SettingService::class);
+        $path = $settings->get('official_logo_path');
+        $this->assertNotEmpty($path);
+        Storage::disk('public')->assertExists($path);
+        $this->assertTrue($settings->hasCustomLogo());
+
+        // Test delete / reset logo
+        Livewire::actingAs($admin)->test(Settings::class)
+            ->call('deleteLogo')
+            ->assertHasNoErrors();
+
+        $this->assertEmpty(app(SettingService::class)->get('official_logo_path'));
+        Storage::disk('public')->assertMissing($path);
+        $this->assertFalse(app(SettingService::class)->hasCustomLogo());
+    }
+
+    public function test_official_logo_can_be_downloaded_and_terms_page_shows_section(): void
+    {
+        // 1. Halaman utama menampilkan section Official Logo
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee(__('Official Logo'))
+            ->assertSee(route('logo.download'));
+
+        // 2. Download logo resmi
+        $this->get(route('logo.download'))
+            ->assertOk()
+            ->assertDownload();
+    }
+
+    public function test_admin_can_configure_group_blocking_settings(): void
+    {
+        $admin = $this->admin();
+
+        Livewire::actingAs($admin)->test(Settings::class)
+            ->set('penggalang_group_count', 4)
+            ->set('penggalang_start_number', 1)
+            ->set('penegak_group_count', 4)
+            ->set('penegak_start_number', 6)
+            ->set('min_per_number', 2)
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $settings = app(SettingService::class);
+        $this->assertSame(4, $settings->penggalangGroupCount());
+        $this->assertSame(4, $settings->penegakGroupCount());
+        $this->assertSame(1, $settings->penggalangStartNumber());
+        $this->assertSame(6, $settings->penegakStartNumber());
+        $this->assertSame([1, 2, 3, 4], $settings->penggalangGroups());
+        $this->assertSame([6, 7, 8, 9], $settings->penegakGroups());
+        $this->assertSame(9, $settings->maxGroupNumber());
+    }
+
+    public function test_admin_can_view_manual_attendance_sheets_by_group_and_by_troop(): void
+    {
+        $admin = $this->admin();
+
+        $troop = Troop::factory()->verified()->create([
+            'troop_name' => 'Gudep SMP 1 Test',
+            'unit' => \App\Enums\ScoutUnit::Penggalang,
+        ]);
+        $participant = Participant::factory()->create([
+            'troop_id' => $troop->id,
+            'full_name' => 'Budi Santoso',
+            'group_number' => 1,
+        ]);
+
+        $session = AttendanceSession::create([
+            'name' => 'Sesi 1 Morse',
+            'date' => now()->toDateString(),
+            'is_active' => true,
+        ]);
+
+        // 1. Group By Group Number
+        $this->actingAs($admin)
+            ->get(route('admin.print.attendance.manual', ['group_by' => 'group', 'group_number' => 1]))
+            ->assertOk()
+            ->assertSee('Budi Santoso')
+            ->assertSee('Gudep SMP 1 Test');
+
+        // 2. Group By Troop
+        $this->actingAs($admin)
+            ->get(route('admin.print.attendance.manual', ['group_by' => 'troop', 'troop_id' => $troop->id]))
+            ->assertOk()
+            ->assertSee('Budi Santoso')
+            ->assertSee('Gudep SMP 1 Test');
+
+        // 3. With Session filter
+        $this->actingAs($admin)
+            ->get(route('admin.print.attendance.manual', ['session_id' => $session->id]))
+            ->assertOk()
+            ->assertSee('Sesi 1 Morse');
     }
 }

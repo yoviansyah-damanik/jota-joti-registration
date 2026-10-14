@@ -72,4 +72,18 @@ class DownloadController extends Controller
 
         return $disk->download($document->path, $filename);
     }
+
+    /**
+     * Unduh berkas logo resmi JOTA-JOTI.
+     */
+    public function officialLogo(SettingService $settings)
+    {
+        $path = $settings->logoPath();
+        abort_unless(file_exists($path), 404);
+
+        $ext = pathinfo($path, PATHINFO_EXTENSION) ?: 'webp';
+        $filename = 'logo-jotajoti-'.now()->year.'.'.$ext;
+
+        return response()->download($path, $filename);
+    }
 }

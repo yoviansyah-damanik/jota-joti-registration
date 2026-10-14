@@ -39,6 +39,8 @@ class Assign extends Component
     {
         return view('livewire.admin.groups.assign', [
             'maxGroupNumber' => $settings->maxGroupNumber(),
+            'penggalangGroups' => $settings->penggalangGroups(),
+            'penegakGroups' => $settings->penegakGroups(),
             'minPerNumber' => $settings->minPerNumber(),
             'verifiedTroops' => Troop::verified()->count(),
             'batches' => GroupAssignmentBatch::with('executor')->latest()->limit(5)->get(),

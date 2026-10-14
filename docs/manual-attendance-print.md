@@ -1,0 +1,25 @@
+# Manual Attendance Print (Cetak Absensi Manual)
+
+- **Route & Controller**:
+  - Route: `/admin/print/attendance-manual` (`admin.print.attendance.manual`)
+  - Controller: `App\Http\Controllers\AdminExportController@manualAttendanceSheet`
+  - View: `resources/views/print/manual-attendance.blade.php`
+- **Fitur Utama**:
+  - **Dua Mode Pengelompokan**:
+    - `group` (Per Nomor Grup): Ideal untuk pos/stasiun operasi JOTA-JOTI (HF, VHF, JOTI Chat) di mana peserta beraktivitas per grup.
+    - `troop` (Per Gugus Depan): Ideal untuk presensi kedatangan/registrasi ulang per pangkalan.
+  - **Filter Interaktif (Toolbar)**:
+    - Pilihan Mode (Per Nomor Grup / Per Gudep).
+    - Filter Golongan (Semua, Penggalang, Penegak / Pandega).
+    - Filter Nomor Grup atau Gudep tertentu.
+    - Filter Sesi Kegiatan (atau format umum tanpa sesi).
+  - **Format Cetak**:
+    - **1 Halaman / Gudep**: Setiap gugus depan dicetak terpisah pada halaman A4 mandiri (`page-break`).
+    - **Baris Penuh Lembar**: Jumlah baris dimaksimalkan hingga memenuhi lembar A4 (default: 20 baris, opsi: 15 / 20 / 25 baris). Jika jumlah peserta gudep kurang dari kapasitas lembar, sisa baris tetap dirender kosong lengkap dengan nomor urut dan kolom tanda tangan untuk pengisian manual di lapangan.
+    - Kop surat resmi dengan logo JOTA-JOTI dan identitas kegiatan.
+    - Format kolom tanda tangan selang-seling khas kepramukaan (`1. ... / 2. ...`).
+    - Kotak rekapitulasi kehadiran (L/P/Total) dan tanda tangan petugas/pembina selalu di dasar halaman.
+- **Akses Cepat**:
+  - Tombol "Cetak Absensi Manual" di halaman Kehadiran (`admin.attendance.index`).
+  - Tombol "Cetak Absensi Grup" di halaman Nomor Grup (`admin.groups`).
+  - Tombol "Cetak Absensi" di halaman Rincian Grup (`admin.groups.details`).

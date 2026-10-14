@@ -88,4 +88,68 @@ class GroupAssignmentServiceTest extends TestCase
         $this->assertSame(0, Participant::whereNotNull('group_number')->count());
         $this->assertFalse($service->isCompleted());
     }
+
+    public function test_penggalang_and_penegak_are_strictly_separated_into_unit_blocks(): void
+    {
+        app(SettingService::class)->save([
+            'penggalang_group_count' => 4,
+            'penggalang_start_number' => 1,
+            'penegak_group_count' => 4,
+            'penegak_start_number' => 5,
+            'min_per_number' => 1,
+        ]);
+
+        $penggalangTroop1 = Troop::factory()->verified()->create([
+            'unit' => \App\Enums\ScoutUnit::Penggalang,
+        ]);
+        Participant::factory()->count(12)->for($penggalangTroop1)->create();
+
+        $penggalangTroop2 = Troop::factory()->verified()->create([
+            'unit' => \App\Enums\ScoutUnit::Penggalang,
+        ]);
+        Participant::factory()->count(8)->for($penggalangTroop2)->create();
+
+        $penegakTroop1 = Troop::factory()->verified()->create([
+            'unit' => \App\Enums\ScoutUnit::PenegakPandega,
+        ]);
+        Participant::factory()->count(10)->for($penegakTroop1)->create();
+
+        $penegakTroop2 = Troop::factory()->verified()->create([
+            'unit' => \App\Enums\ScoutUnit::PenegakPandega,
+        ]);
+        Participant::factory()->count(6)->for($penegakTroop2)->create();
+
+        $batch = app(GroupAssignmentService::class)->assign();
+
+        $this->assertSame(36, $batch->total_participants);
+
+        // Penggalang peserta hanya boleh di grup 1 - 4
+        $penggalangGroupNumbers = Participant::whereHas('troop', fn ($q) => $q->where('unit', \App\Enums\ScoutUnit::Penggalang))
+            ->pluck('group_number')
+            ->unique();
+        $this->assertTrue($penggalangGroupNumbers->every(fn ($n) => in_array($n, [1, 2, 3, 4], true)));
+
+        // Penegak peserta hanya boleh di grup 5 - 8
+        $penegakGroupNumbers = Participant::whereHas('troop', fn ($q) => $q->where('unit', \App\Enums\ScoutUnit::PenegakPandega))
+            ->pluck('group_number')
+            ->unique();
+        $this->assertTrue($penegakGroupNumbers->every(fn ($n) => in_array($n, [5, 6, 7, 8], true)));
+
+        // Tidak boleh ada irisan nomor grup antara Penggalang dan Penegak
+        $overlap = $penggalangGroupNumbers->intersect($penegakGroupNumbers);
+        $this->assertTrue($overlap->isEmpty(), 'Penggalang dan Penegak tidak boleh berada dalam grup yang sama!');
+
+        // Persebaran masing-masing golongan seimbang
+        $penggalangCounts = Participant::whereHas('troop', fn ($q) => $q->where('unit', \App\Enums\ScoutUnit::Penggalang))
+            ->selectRaw('group_number, count(*) as total')
+            ->groupBy('group_number')
+            ->pluck('total');
+        $this->assertLessThanOrEqual(1, $penggalangCounts->max() - $penggalangCounts->min());
+
+        $penegakCounts = Participant::whereHas('troop', fn ($q) => $q->where('unit', \App\Enums\ScoutUnit::PenegakPandega))
+            ->selectRaw('group_number, count(*) as total')
+            ->groupBy('group_number')
+            ->pluck('total');
+        $this->assertLessThanOrEqual(1, $penegakCounts->max() - $penegakCounts->min());
+    }
 }

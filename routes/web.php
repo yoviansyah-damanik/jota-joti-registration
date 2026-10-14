@@ -25,6 +25,9 @@ Route::livewire('/status', Public\StatusCheck::class)->name('status');
 Route::get('/template/peserta.xlsx', [DownloadController::class, 'participantTemplate'])
     ->middleware('throttle:30,1')
     ->name('template.participants');
+Route::get('/logo/download', [DownloadController::class, 'officialLogo'])
+    ->middleware('throttle:30,1')
+    ->name('logo.download');
 Route::get('/kartu/{code}', [ParticipantCardController::class, 'registrant'])
     ->middleware(['throttle:20,1', 'cards.published'])
     ->name('cards.registrant');
@@ -61,6 +64,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::livewire('/registrations', Admin\Registrations\Index::class)->name('registrations.index');
         Route::livewire('/registrations/{troop}', Admin\Registrations\Show::class)->name('registrations.show');
         Route::livewire('/groups', Admin\Groups\Assign::class)->name('groups');
+        Route::livewire('/groups/details', Admin\Groups\Details::class)->name('groups.details');
         Route::livewire('/attendance', Admin\Attendance\Index::class)->name('attendance.index');
         Route::livewire('/attendance/sessions', Admin\Attendance\Sessions::class)->name('attendance.sessions');
         Route::livewire('/reports/payments', Admin\Reports\Payments::class)->name('reports.payments');
@@ -76,5 +80,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/exports/payments', [AdminExportController::class, 'payments'])->name('exports.payments');
         Route::get('/print/payments', [AdminExportController::class, 'paymentsSheet'])->name('print.payments');
         Route::get('/print/attendance/{session}', [AdminExportController::class, 'attendanceSheet'])->name('print.attendance');
+        Route::get('/print/attendance-manual', [AdminExportController::class, 'manualAttendanceSheet'])->name('print.attendance.manual');
     });
 });

@@ -7,6 +7,9 @@
         @else
             <span class="badge badge-soft badge-warning">{{ __('Unbalanced (difference :n)', ['n' => $report['spread']]) }}</span>
         @endif
+        <a href="{{ route('admin.groups.details') }}" wire:navigate class="btn btn-ghost btn-xs text-primary">
+            {{ __('View details') }} &rarr;
+        </a>
     </x-slot:actions>
 
     <div class="overflow-x-auto">
@@ -23,14 +26,29 @@
             <tbody>
                 @foreach ($report['numbers'] as $row)
                     <tr wire:key="number-{{ $row['number'] }}">
-                        <td><x-ui.group-badge :number="$row['number']" size="md" /></td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <a href="{{ route('admin.groups.details', ['group' => $row['number']]) }}" wire:navigate class="transition-opacity hover:opacity-80" title="{{ __('View details for group :n', ['n' => $row['number']]) }}">
+                                    <x-ui.group-badge :number="$row['number']" size="md" />
+                                </a>
+                                @if (($row['unit'] ?? '') === \App\Enums\ScoutUnit::Penggalang->value)
+                                    <span class="badge badge-info badge-soft badge-xs font-semibold">{{ $row['unit_label'] }}</span>
+                                @elseif (($row['unit'] ?? '') === \App\Enums\ScoutUnit::PenegakPandega->value)
+                                    <span class="badge badge-success badge-soft badge-xs font-semibold">{{ $row['unit_label'] }}</span>
+                                @endif
+                            </div>
+                        </td>
                         <td>
                             <div class="bg-base-200 rounded-field flex h-3 overflow-hidden">
                                 <div class="bg-primary" style="width: {{ $row['male'] / $peak * 100 }}%"></div>
                                 <div class="bg-secondary" style="width: {{ $row['female'] / $peak * 100 }}%"></div>
                             </div>
                         </td>
-                        <td class="text-center font-semibold">{{ $row['total'] }}</td>
+                        <td class="text-center font-semibold">
+                            <a href="{{ route('admin.groups.details', ['group' => $row['number']]) }}" wire:navigate class="link link-hover font-semibold">
+                                {{ $row['total'] }}
+                            </a>
+                        </td>
                         <td class="text-center">{{ $row['male'] }}</td>
                         <td class="text-center">{{ $row['female'] }}</td>
                     </tr>

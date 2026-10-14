@@ -43,6 +43,9 @@
                     <a href="{{ route('status') }}" wire:navigate class="btn btn-lg border-0 bg-white/10 text-white hover:bg-white/20">
                         <x-ui.icon name="search" class="size-5" /> {{ __('Check Status') }}
                     </a>
+                    <a href="#official-logo" class="btn btn-lg border-0 bg-white/10 text-white hover:bg-white/20">
+                        <x-ui.icon name="sparkles" class="size-5" /> {{ __('Official Logo') }}
+                    </a>
                 </div>
             </div>
 
@@ -160,6 +163,55 @@
             </ul>
         </x-ui.card>
     @endif
+
+    {{-- Logo Resmi (Official Logo) --}}
+    <section id="official-logo" class="scroll-mt-6 space-y-4">
+        <div>
+            <span class="badge badge-primary badge-soft text-xs font-semibold uppercase tracking-wider">{{ __('Official Branding') }}</span>
+            <h2 class="mt-1 text-xl font-bold sm:text-2xl">{{ __('Official Logo') }}</h2>
+            <p class="text-base-content/60 text-sm">{{ __('Official JOTA-JOTI logo for publications, participant attributes, banners, and identification.') }}</p>
+        </div>
+
+        <div class="card bg-base-100 border-base-200 shadow-soft overflow-hidden border">
+            <div class="grid grid-cols-1 items-center md:grid-cols-12">
+                {{-- Box Pratinjau Logo --}}
+                <div class="border-base-200 group flex items-center justify-center border-b bg-gradient-to-br from-primary/10 via-base-200/40 to-secondary/10 p-8 sm:p-12 md:col-span-5 md:border-b-0 md:border-r">
+                    <x-ui.logo class="h-44 w-auto max-w-full drop-shadow-md transition-transform duration-300 group-hover:scale-105 sm:h-52" />
+                </div>
+
+                {{-- Keterangan dan Aksi Unduh --}}
+                <div class="space-y-4 p-6 sm:p-8 md:col-span-7">
+                    <div>
+                        <h3 class="text-lg font-extrabold sm:text-xl">{{ $settings->get('event_name') }}</h3>
+                        <p class="text-base-content/70 mt-0.5 text-sm">{{ $settings->get('organization_name') }}</p>
+                    </div>
+
+                    <p class="text-base-content/75 text-sm leading-relaxed">
+                        {{ __('Download and use the official logo for troop publications, banners, activity shirts, and event documentation in accordance with official scouting guidelines.') }}
+                    </p>
+
+                    <div class="flex flex-wrap gap-2 text-xs">
+                        <span class="badge badge-outline gap-1.5 py-3">
+                            <x-ui.icon name="check-circle" class="text-success size-3.5" /> {{ __('High Resolution') }}
+                        </span>
+                        <span class="badge badge-outline gap-1.5 py-3">
+                            <x-ui.icon name="check-circle" class="text-success size-3.5" /> {{ __('Transparent Background') }}
+                        </span>
+                        <span class="badge badge-outline gap-1.5 py-3">
+                            <x-ui.icon name="check-circle" class="text-success size-3.5" /> {{ __('Official Mascot & Identity') }}
+                        </span>
+                    </div>
+
+                    <div class="pt-2">
+                        <a href="{{ route('logo.download') }}" class="btn btn-primary btn-md gap-2">
+                            <x-ui.icon name="download" class="size-5" />
+                            <span>{{ __('Download Official Logo') }}</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     {{-- Persetujuan & lanjut --}}
     <x-ui.card>
