@@ -1,0 +1,247 @@
+@import 'tailwindcss';
+
+@plugin "daisyui" {
+    themes: jotajoti --default;
+}
+
+/* Palet mengikuti logo JOTA JOTI: biru (utama), ungu (sekunder), oranye (aksen) di atas latar netral yang bersih */
+@plugin "daisyui/theme" {
+    name: "jotajoti";
+    default: true;
+    color-scheme: light;
+    --color-base-100: oklch(100% 0 0);
+    --color-base-200: oklch(97.6% 0.007 295);
+    --color-base-300: oklch(92.8% 0.014 295);
+    --color-base-content: oklch(24% 0.035 295);
+    --color-primary: oklch(50% 0.24 295);
+    --color-primary-content: oklch(99% 0.01 295);
+    --color-secondary: oklch(46% 0.25 305);
+    --color-secondary-content: oklch(99% 0.01 305);
+    --color-accent: oklch(78% 0.17 65);
+    --color-accent-content: oklch(24% 0.06 55);
+    --color-neutral: oklch(26% 0.05 295);
+    --color-neutral-content: oklch(97% 0.01 295);
+    --color-info: oklch(58% 0.2 290);
+    --color-info-content: oklch(99% 0.01 290);
+    --color-success: oklch(56% 0.16 155);
+    --color-success-content: oklch(99% 0.01 155);
+    --color-warning: oklch(80% 0.16 82);
+    --color-warning-content: oklch(25% 0.06 70);
+    --color-error: oklch(56% 0.23 25);
+    --color-error-content: oklch(99% 0.01 25);
+    --radius-selector: 0.625rem;
+    --radius-field: 0.625rem;
+    --radius-box: 1rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 1px;
+    --depth: 0;
+    --noise: 0;
+}
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../views';
+@source '../../app';
+@source inline("{text,alert}-{primary,secondary,accent,info,success,warning,error}");
+
+@theme {
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --shadow-soft: 0 1px 2px rgb(15 23 42 / 0.05), 0 10px 28px -14px rgb(15 23 42 / 0.16);
+    --shadow-lift: 0 2px 4px rgb(15 23 42 / 0.05), 0 18px 36px -16px rgb(15 23 42 / 0.22);
+}
+
+/* ---- gaya dasar (tanpa @layer agar mengalahkan gaya bawaan komponen) ---- */
+html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+body {
+    background-color: var(--color-base-200);
+    color: var(--color-base-content);
+}
+
+h1, h2, h3 {
+    letter-spacing: -0.02em;
+}
+
+:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.card {
+    border: 0;
+    box-shadow: var(--shadow-soft);
+}
+
+.btn {
+    font-weight: 600;
+}
+
+.input, .select, .textarea, .file-input {
+    background-color: oklch(95.6% 0.011 295);
+    border-color: transparent;
+    box-shadow: none;
+}
+
+.input::placeholder, .textarea::placeholder {
+    color: color-mix(in oklab, var(--color-base-content) 42%, transparent);
+}
+
+.input:focus, .input:focus-within, .select:focus, .textarea:focus {
+    background-color: var(--color-base-100);
+    border-color: var(--color-primary);
+    outline: 3px solid color-mix(in oklab, var(--color-primary) 22%, transparent);
+    outline-offset: 0;
+}
+
+/* input di dalam pembungkus .input (mis. label dengan ikon): cincin fokus cukup dari pembungkusnya */
+.input :is(input, select):focus,
+.input :is(input, select):focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+.fieldset-legend {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-base-content);
+}
+
+/* tabel: judul kolom kecil dan tegas, baris menyorot saat disentuh */
+.table :where(thead th) {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: color-mix(in oklab, var(--color-base-content) 62%, transparent);
+    background-color: var(--color-base-200);
+}
+
+.table :where(thead th:first-child) { border-top-left-radius: 0.75rem; border-bottom-left-radius: 0.75rem; }
+.table :where(thead th:last-child) { border-top-right-radius: 0.75rem; border-bottom-right-radius: 0.75rem; }
+
+.table :is(td, th) {
+    border-width: 0;
+}
+
+.table :where(tbody tr:nth-child(even)) {
+    background-color: color-mix(in oklab, var(--color-base-200) 55%, transparent);
+}
+
+.table :where(tbody tr) {
+    transition: background-color 120ms ease;
+}
+
+.table :where(tbody tr:hover) {
+    background-color: color-mix(in oklab, var(--color-primary) 5%, transparent);
+}
+
+.table-pin-rows :where(thead tr) {
+    background-color: var(--color-base-100);
+}
+
+/* menu samping: item aktif berupa pil biru muda dengan teks biru */
+.menu {
+    --menu-active-bg: color-mix(in oklab, var(--color-primary) 11%, white);
+    --menu-active-fg: var(--color-primary);
+}
+
+.menu :where(li > a) {
+    font-weight: 500;
+}
+
+.menu :where(li > a.menu-active) {
+    font-weight: 700;
+}
+
+.btn-outline:not(.btn-primary):not(.btn-secondary):not(.btn-accent):not(.btn-success):not(.btn-warning):not(.btn-error):not(.btn-info) {
+    border-color: transparent;
+    background-color: color-mix(in oklab, var(--color-base-content) 8%, transparent);
+    color: var(--color-base-content);
+}
+
+.alert {
+    border: 0;
+}
+
+.badge {
+    border: 0;
+    font-weight: 600;
+}
+
+.steps .step-primary + .step-primary:before,
+.steps .step-primary:after {
+    background-color: var(--color-primary);
+}
+
+/* teks pada badge/peringatan lembut harus cukup kontras terhadap latar terangnya (min. 4.5:1) */
+.badge-soft.badge-info, .alert-soft.alert-info { color: oklch(42% 0.18 290); }
+.badge-soft.badge-success, .alert-soft.alert-success { color: oklch(40% 0.12 155); }
+.badge-soft.badge-warning, .alert-soft.alert-warning { color: oklch(42% 0.11 70); }
+.badge-soft.badge-error, .alert-soft.alert-error { color: oklch(46% 0.19 25); }
+.text-warning { color: oklch(48% 0.12 70); }
+.btn-soft.btn-warning { color: oklch(42% 0.11 70); }
+.btn-soft.btn-error { color: oklch(46% 0.19 25); }
+.btn-soft.btn-success { color: oklch(40% 0.12 155); }
+
+/* latar hero: gradien + pola titik (panel gelap) dan gradien + cincin konsentris (panel ungu) */
+:root {
+    --hero-dark-bg:
+        radial-gradient(38rem 22rem at 0% 0%, color-mix(in oklab, var(--color-primary) 50%, transparent), transparent 70%),
+        radial-gradient(26rem 18rem at 100% 100%, color-mix(in oklab, var(--color-accent) 16%, transparent), transparent 70%),
+        radial-gradient(rgb(255 255 255 / 0.07) 1.2px, transparent 1.4px) 0 0 / 24px 24px,
+        linear-gradient(145deg, color-mix(in oklab, var(--color-neutral) 86%, var(--color-primary)), var(--color-neutral) 55%, color-mix(in oklab, var(--color-neutral) 82%, black));
+    --hero-purple-bg:
+        radial-gradient(30rem 24rem at 90% 0%, rgb(255 255 255 / 0.07), transparent 65%),
+        repeating-radial-gradient(circle at 92% 4%, rgb(255 255 255 / 0.045) 0 1px, transparent 1px 64px),
+        linear-gradient(160deg, color-mix(in oklab, var(--color-primary) 90%, white), var(--color-primary) 40%, color-mix(in oklab, var(--color-primary) 80%, black));
+}
+
+.hero-dark { background: var(--hero-dark-bg); }
+.hero-purple { background: var(--hero-purple-bg); }
+
+/* hero halaman utama: latar selebar layar, isi dibatasi 72rem */
+.hero-split {
+    isolation: isolate;
+    overflow: hidden;
+    background-color: var(--color-neutral);
+}
+
+@media (min-width: 1024px) {
+    .hero-split {
+        --hero-width: min(100%, 72rem);
+        --hero-split: calc((100% - var(--hero-width)) / 2 + var(--hero-width) * 0.5455);
+        background: none;
+    }
+
+    /* dua panel dilukis di belakang isi agar latarnya selebar layar */
+    .hero-split::before,
+    .hero-split::after {
+        content: '';
+        position: absolute;
+        z-index: -1;
+        top: 0;
+        bottom: 0;
+    }
+
+    .hero-split::before {
+        left: 0;
+        width: var(--hero-split);
+        background: var(--hero-dark-bg);
+    }
+
+    .hero-split::after {
+        left: var(--hero-split);
+        right: 0;
+        background: var(--hero-purple-bg);
+    }
+
+    .hero-split :is(.hero-dark, .hero-purple) { background: none; }
+}
+@media print {
+    .no-print {
+        display: none !important;
+    }
+}
