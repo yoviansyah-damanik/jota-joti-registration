@@ -54,6 +54,12 @@ class Settings extends Component
 
     public string $certificate_city = '';
 
+    public bool $task_submission_enabled = true;
+
+    public ?string $task_submission_open_at = null;
+
+    public ?string $task_submission_close_at = null;
+
     public function penggalangRange(): string
     {
         $start = max(1, (int) $this->penggalang_start_number);
@@ -99,6 +105,9 @@ class Settings extends Component
             'certificate_signer_name' => (string) $values['certificate_signer_name'],
             'certificate_signer_title' => (string) $values['certificate_signer_title'],
             'certificate_city' => (string) $values['certificate_city'],
+            'task_submission_enabled' => $settings->taskSubmissionEnabled(),
+            'task_submission_open_at' => ! empty($values['task_submission_open_at']) ? date('Y-m-d\TH:i', strtotime($values['task_submission_open_at'])) : null,
+            'task_submission_close_at' => ! empty($values['task_submission_close_at']) ? date('Y-m-d\TH:i', strtotime($values['task_submission_close_at'])) : null,
         ]);
     }
 
@@ -121,7 +130,13 @@ class Settings extends Component
             'certificate_signer_name' => [Rule::requiredIf($this->event_completed), 'nullable', 'string', 'max:100'],
             'certificate_signer_title' => [Rule::requiredIf($this->event_completed), 'nullable', 'string', 'max:150'],
             'certificate_city' => [Rule::requiredIf($this->event_completed), 'nullable', 'string', 'max:60'],
+            'task_submission_enabled' => ['boolean'],
+            'task_submission_open_at' => ['nullable', 'date'],
+            'task_submission_close_at' => ['nullable', 'date', 'after_or_equal:task_submission_open_at'],
         ]);
+
+        $data['task_submission_open_at'] = $this->task_submission_open_at ? date('Y-m-d H:i:s', strtotime($this->task_submission_open_at)) : '';
+        $data['task_submission_close_at'] = $this->task_submission_close_at ? date('Y-m-d H:i:s', strtotime($this->task_submission_close_at)) : '';
 
         $penegakStart = $this->penegak_start_number ?: ($this->penggalang_start_number + $this->penggalang_group_count);
         $data['max_group_number'] = max(

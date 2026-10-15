@@ -17,6 +17,10 @@
   - Route: `/admin/tasks` (`admin.tasks.index`)
   - Komponen: `App\Livewire\Admin\Tasks\Index`
   - Filter status akhir, pencarian, dan modal penilaian terperinci untuk Tugas JOTA Digital, Tugas JOTI, dan penetapan Status Akhir.
+- **Konfigurasi Batas Waktu Buka - Tutup (Admin)**:
+  - Route: `/admin/settings` (`admin.settings`)
+  - Konfigurasi: Toggle aktifkan tugas, batas waktu buka (`task_submission_open_at`), dan batas waktu tutup (`task_submission_close_at`).
+  - Form `/tugas` otomatis menampilkan banner status jadwal, menonaktifkan input & tombol submit saat periode tutup, serta menolak kiriman di luar jadwal.
 - **Unduh Dokumen Tugas**:
   - Route: `/tugas/dokumen/{submission}/{type}` (`tasks.download`)
   - Dilindungi otentikasi admin atau verifikasi kode ID Peserta yang bersangkutan.

@@ -34,6 +34,9 @@ class SettingService
         'certificate_signer_title' => 'Ketua Kwartir Cabang Kota Padangsidimpuan',
         'certificate_city' => 'Padangsidimpuan',
         'official_logo_path' => '',
+        'task_submission_enabled' => '1',
+        'task_submission_open_at' => '',
+        'task_submission_close_at' => '',
     ];
 
     /**
@@ -228,5 +231,90 @@ class SettingService
         $path = $this->get('official_logo_path');
 
         return (bool) ($path && Storage::disk('public')->exists($path));
+    }
+
+    public function taskSubmissionEnabled(): bool
+    {
+        return $this->bool('task_submission_enabled');
+    }
+
+    public function taskSubmissionOpenAt(): ?\Illuminate\Support\Carbon
+    {
+        $val = $this->get('task_submission_open_at');
+
+        return ! empty($val) ? \Illuminate\Support\Carbon::parse($val) : null;
+    }
+
+    public function taskSubmissionCloseAt(): ?\Illuminate\Support\Carbon
+    {
+        $val = $this->get('task_submission_close_at');
+
+        return ! empty($val) ? \Illuminate\Support\Carbon::parse($val) : null;
+    }
+
+    public function isTaskSubmissionOpen(): bool
+    {
+        if (! $this->taskSubmissionEnabled()) {
+            return false;
+        }
+
+        $now = now();
+        $openAt = $this->taskSubmissionOpenAt();
+        if ($openAt && $now->lt($openAt)) {
+            return false;
+        }
+
+        $closeAt = $this->taskSubmissionCloseAt();
+        if ($closeAt && $now->gt($closeAt)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Mengembalikan status dan pesan jadwal pengiriman tugas.
+     *
+     * @return array{is_open: bool, status: string, message: string}
+     */
+    public function taskSubmissionWindow(): array
+    {
+        if (! $this->taskSubmissionEnabled()) {
+            return [
+                'is_open' => false,
+                'status' => 'disabled',
+                'message' => 'Pengiriman tugas saat ini dinonaktifkan oleh panitia.',
+            ];
+        }
+
+        $now = now();
+        $openAt = $this->taskSubmissionOpenAt();
+        if ($openAt && $now->lt($openAt)) {
+            return [
+                'is_open' => false,
+                'status' => 'not_started',
+                'message' => 'Pengiriman tugas belum dibuka. Form akan dibuka pada ' . $openAt->translatedFormat('d F Y, H:i') . ' WIB.',
+            ];
+        }
+
+        $closeAt = $this->taskSubmissionCloseAt();
+        if ($closeAt && $now->gt($closeAt)) {
+            return [
+                'is_open' => false,
+                'status' => 'closed',
+                'message' => 'Batas waktu pengiriman tugas telah berakhir pada ' . $closeAt->translatedFormat('d F Y, H:i') . ' WIB.',
+            ];
+        }
+
+        $message = 'Pengiriman tugas sedang dibuka.';
+        if ($closeAt) {
+            $message = 'Pengiriman tugas sedang dibuka hingga ' . $closeAt->translatedFormat('d F Y, H:i') . ' WIB.';
+        }
+
+        return [
+            'is_open' => true,
+            'status' => 'open',
+            'message' => $message,
+        ];
     }
 }

@@ -2,20 +2,58 @@
     <x-ui.page-header :title="__('Settings')" :subtitle="__('Registration and group number configuration')" />
 
     <form wire:submit="save" class="grid grid-cols-1 gap-6 xl:grid-cols-2">
-        <x-ui.card :title="__('Registration')" icon="flag">
-            <x-ui.input :label="__('Event name')" name="event_name" wire:model="event_name" required />
-            <x-ui.input :label="__('Organization name')" name="organization_name" wire:model="organization_name" required />
+        <div class="space-y-6">
+            <x-ui.card :title="__('Registration')" icon="flag">
+                <x-ui.input :label="__('Event name')" name="event_name" wire:model="event_name" required />
+                <x-ui.input :label="__('Organization name')" name="organization_name" wire:model="organization_name" required />
 
-            <label class="label cursor-pointer gap-2 py-2">
-                <input type="checkbox" wire:model="registration_open" class="toggle toggle-primary" />
-                <span class="text-base-content">{{ __('Registration is open') }}</span>
-            </label>
+                <label class="label cursor-pointer gap-2 py-2">
+                    <input type="checkbox" wire:model="registration_open" class="toggle toggle-primary" />
+                    <span class="text-base-content">{{ __('Registration is open') }}</span>
+                </label>
 
-            <x-ui.input :label="__('Registration fee per participant (Rp)')" name="registration_fee" type="number" min="0" wire:model="registration_fee" :hint="__('Total = number of participants × this fee.')" />
-            <x-ui.textarea :label="__('Bank account info')" name="bank_account_info" wire:model="bank_account_info" rows="3" />
-            <x-ui.input :label="__('Contact info')" name="contact_info" wire:model="contact_info" />
-            <x-ui.textarea :label="__('Other terms')" name="additional_terms" wire:model="additional_terms" rows="5" :hint="__('One term per line. Shown on the requirements page.')" />
-        </x-ui.card>
+                <x-ui.input :label="__('Registration fee per participant (Rp)')" name="registration_fee" type="number" min="0" wire:model="registration_fee" :hint="__('Total = number of participants × this fee.')" />
+                <x-ui.textarea :label="__('Bank account info')" name="bank_account_info" wire:model="bank_account_info" rows="3" />
+                <x-ui.input :label="__('Contact info')" name="contact_info" wire:model="contact_info" />
+                <x-ui.textarea :label="__('Other terms')" name="additional_terms" wire:model="additional_terms" rows="5" :hint="__('One term per line. Shown on the requirements page.')" />
+            </x-ui.card>
+
+            <x-ui.card :title="__('Pengiriman Tugas')" icon="document">
+                <label class="label cursor-pointer justify-start gap-2 py-2">
+                    <input type="checkbox" wire:model="task_submission_enabled" class="toggle toggle-primary" />
+                    <span class="text-base-content font-semibold">{{ __('Aktifkan Pengiriman Tugas') }}</span>
+                </label>
+                <p class="text-base-content/60 -mt-1 mb-3 text-xs">
+                    {{ __('Jika dinonaktifkan, formulir pengiriman tugas (/tugas) akan ditutup secara manual.') }}
+                </p>
+
+                <div class="grid gap-4 sm:grid-cols-2 pt-1">
+                    <div>
+                        <label class="label pb-1" for="task_submission_open_at">
+                            <span class="label-text font-semibold text-xs">{{ __('Batas Waktu Buka (Mulai)') }}</span>
+                        </label>
+                        <input type="datetime-local" id="task_submission_open_at" wire:model="task_submission_open_at"
+                            class="input input-bordered w-full text-xs @error('task_submission_open_at') input-error @enderror" />
+                        <p class="text-[11px] text-base-content/50 mt-1">{{ __('Kosongkan jika dibuka langsung tanpa jadwal.') }}</p>
+                        @error('task_submission_open_at')
+                            <p class="text-error text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="label pb-1" for="task_submission_close_at">
+                            <span class="label-text font-semibold text-xs">{{ __('Batas Waktu Tutup (Selesai)') }}</span>
+                        </label>
+                        <input type="datetime-local" id="task_submission_close_at" wire:model="task_submission_close_at"
+                            class="input input-bordered w-full text-xs @error('task_submission_close_at') input-error @enderror" />
+                        <p class="text-[11px] text-base-content/50 mt-1">{{ __('Kosongkan jika tidak ada batas waktu tutup otomatis.') }}</p>
+                        @error('task_submission_close_at')
+                            <p class="text-error text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+            </x-ui.card>
+        </div>
 
         <div class="space-y-6">
             <x-ui.card :title="__('Official Logo')" icon="sparkles">

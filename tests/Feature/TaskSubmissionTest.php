@@ -212,4 +212,74 @@ class TaskSubmissionTest extends TestCase
             ->assertOk()
             ->assertDownload();
     }
+
+    public function test_admin_can_configure_task_submission_schedule(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+
+        Livewire::actingAs($admin)->test(\App\Livewire\Admin\Settings::class)
+            ->set('task_submission_enabled', true)
+            ->set('task_submission_open_at', '2026-10-16T08:00')
+            ->set('task_submission_close_at', '2026-10-18T23:59')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $settings = app(\App\Services\SettingService::class);
+        $this->assertTrue($settings->taskSubmissionEnabled());
+        $this->assertSame('2026-10-16 08:00:00', $settings->get('task_submission_open_at'));
+        $this->assertSame('2026-10-18 23:59:00', $settings->get('task_submission_close_at'));
+    }
+
+    public function test_submission_is_prevented_when_window_is_closed_or_not_started(): void
+    {
+        $settings = app(\App\Services\SettingService::class);
+        $troop = Troop::factory()->verified()->create();
+        $participant = Participant::factory()->for($troop)->create(['attendance_code' => 'P-WINDOW01']);
+        $jotaPdf = UploadedFile::fake()->create('laporan-jota.pdf', 100, 'application/pdf');
+        $jotiPdf = UploadedFile::fake()->create('laporan-joti.pdf', 100, 'application/pdf');
+
+        // 1. Saat dinonaktifkan
+        $settings->save(['task_submission_enabled' => false]);
+        Livewire::test(PublicTasksSubmit::class)
+            ->set('participant_code', 'P-WINDOW01')
+            ->set('jid', 'YB6ZBB')
+            ->set('jjid', 'JJID36064')
+            ->set('jota_file', $jotaPdf)
+            ->set('joti_file', $jotiPdf)
+            ->call('submit')
+            ->assertHasErrors(['submission_closed'])
+            ->assertSee('dinonaktifkan');
+
+        // 2. Saat belum dibuka (open_at di masa depan)
+        $settings->save([
+            'task_submission_enabled' => true,
+            'task_submission_open_at' => now()->addDay()->toDateTimeString(),
+            'task_submission_close_at' => now()->addDays(2)->toDateTimeString(),
+        ]);
+        Livewire::test(PublicTasksSubmit::class)
+            ->set('participant_code', 'P-WINDOW01')
+            ->set('jid', 'YB6ZBB')
+            ->set('jjid', 'JJID36064')
+            ->set('jota_file', $jotaPdf)
+            ->set('joti_file', $jotiPdf)
+            ->call('submit')
+            ->assertHasErrors(['submission_closed'])
+            ->assertSee('belum dibuka');
+
+        // 3. Saat sudah ditutup (close_at di masa lalu)
+        $settings->save([
+            'task_submission_enabled' => true,
+            'task_submission_open_at' => now()->subDays(2)->toDateTimeString(),
+            'task_submission_close_at' => now()->subHour()->toDateTimeString(),
+        ]);
+        Livewire::test(PublicTasksSubmit::class)
+            ->set('participant_code', 'P-WINDOW01')
+            ->set('jid', 'YB6ZBB')
+            ->set('jjid', 'JJID36064')
+            ->set('jota_file', $jotaPdf)
+            ->set('joti_file', $jotiPdf)
+            ->call('submit')
+            ->assertHasErrors(['submission_closed'])
+            ->assertSee('telah berakhir');
+    }
 }

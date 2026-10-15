@@ -6,6 +6,7 @@ use App\Enums\TaskStatus;
 use App\Models\Participant;
 use App\Models\TaskSubmission;
 use App\Services\ParticipantIdService;
+use App\Services\SettingService;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -34,7 +35,7 @@ class Submit extends Component
 
     public ?TaskSubmission $existingSubmission = null;
 
-    public function mount(?string $code = null): void
+    public function mount(SettingService $settings, ?string $code = null): void
     {
         $codeParam = $code ?? request()->query('code');
         if ($codeParam) {
@@ -93,8 +94,15 @@ class Submit extends Component
         }
     }
 
-    public function submit(): void
+    public function submit(SettingService $settings): void
     {
+        if (! $settings->isTaskSubmissionOpen()) {
+            $window = $settings->taskSubmissionWindow();
+            $this->addError('submission_closed', $window['message']);
+
+            return;
+        }
+
         $this->lookupParticipant();
 
         if (! $this->participant) {
@@ -176,8 +184,10 @@ class Submit extends Component
         $this->redirect(route('tasks.status', ['code' => $this->participant->attendance_code]));
     }
 
-    public function render()
+    public function render(SettingService $settings)
     {
-        return view('livewire.public.tasks.submit');
+        return view('livewire.public.tasks.submit', [
+            'window' => $settings->taskSubmissionWindow(),
+        ]);
     }
 }

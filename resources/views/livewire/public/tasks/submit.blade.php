@@ -11,9 +11,41 @@
         </p>
     </div>
 
+    {{-- Banner Status Batas Waktu Buka - Tutup --}}
+    @if (! $window['is_open'])
+        <div class="alert alert-error/15 border border-error/40 rounded-2xl shadow-sm text-sm">
+            <x-ui.icon name="x-circle" class="size-6 text-error shrink-0" />
+            <div class="space-y-1">
+                <h3 class="font-bold text-base text-error">{{ __('Pengiriman Tugas Ditutup') }}</h3>
+                <p class="text-xs text-base-content/80">{{ $window['message'] }}</p>
+                <div class="pt-1">
+                    <a href="{{ route('tasks.status') }}" class="btn btn-error btn-outline btn-xs">
+                        <x-ui.icon name="search" class="size-3.5" /> {{ __('Cek Penilaian Tugas Peserta') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    @else
+        <div class="bg-base-100 rounded-2xl border border-primary/20 px-4 py-3 flex items-center justify-between gap-3 shadow-xs">
+            <div class="flex items-center gap-2.5 text-xs">
+                <span class="size-2.5 rounded-full bg-success animate-pulse inline-block shrink-0"></span>
+                <span class="text-base-content/80 font-medium">{{ $window['message'] }}</span>
+            </div>
+            <span class="badge badge-success badge-sm font-semibold shrink-0">{{ __('Buka') }}</span>
+        </div>
+    @endif
+
     {{-- Main Form Card --}}
     <div class="card bg-base-100 shadow-lift rounded-3xl border border-base-200/80 overflow-hidden">
         <form wire:submit="submit" class="card-body p-6 sm:p-10 space-y-6">
+            @error('submission_closed')
+                <div class="alert alert-error text-xs rounded-xl py-2 px-3">
+                    <x-ui.icon name="exclamation" class="size-4 shrink-0" />
+                    <span>{{ $message }}</span>
+                </div>
+            @enderror
+
+            <fieldset @disabled(! $window['is_open']) class="space-y-6">
             {{-- Section 1: Identitas Peserta --}}
             <div class="space-y-4">
                 <div class="flex items-center gap-2 pb-2 border-b border-base-200">
@@ -221,6 +253,7 @@
                     <p class="text-error text-xs font-medium">{{ $message }}</p>
                 @enderror
             </div>
+            </fieldset>
 
             {{-- Submit Button --}}
             <div class="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -231,6 +264,7 @@
 
                 <button type="submit"
                     class="btn btn-primary btn-lg w-full sm:w-auto font-bold px-8 shadow-md order-1 sm:order-2"
+                    @disabled(! $window['is_open'])
                     wire:loading.attr="disabled">
                     <span wire:loading wire:target="submit" class="loading loading-spinner loading-sm"></span>
                     <x-ui.icon name="upload" class="size-5" />
