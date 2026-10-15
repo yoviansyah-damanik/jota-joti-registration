@@ -1,31 +1,100 @@
 <div class="mx-auto max-w-3xl space-y-8">
-    {{-- Header --}}
+    {{-- Header Halaman --}}
     <div class="text-center space-y-2">
-        <span class="badge badge-primary badge-outline font-semibold tracking-wider uppercase text-xs">JOTA-JOTI
-            Activity</span>
+        <span class="badge badge-primary badge-outline font-semibold tracking-wider uppercase text-xs">JOTA-JOTI Activity</span>
         <h1 class="text-3xl font-extrabold tracking-tight sm:text-4xl text-base-content">
             {{ __('Form Pengiriman Tugas') }}
         </h1>
         <p class="text-base-content/70 mx-auto max-w-xl text-sm sm:text-base">
-            {{ __('Kirimkan laporan tugas JOTA Digital dan JOTI Anda untuk dinilai oleh panitia. Pastikan data ID Peserta sudah terverifikasi.') }}
+            {{ __('Kirimkan laporan tugas JOTA Digital dan JOTI Anda untuk dinilai oleh panitia.') }}
         </p>
     </div>
 
-    {{-- Banner Status Batas Waktu Buka - Tutup --}}
     @if (! $window['is_open'])
-        <div class="alert alert-error/15 border border-error/40 rounded-2xl shadow-sm text-sm">
-            <x-ui.icon name="x-circle" class="size-6 text-error shrink-0" />
-            <div class="space-y-1">
-                <h3 class="font-bold text-base text-error">{{ __('Pengiriman Tugas Ditutup') }}</h3>
-                <p class="text-xs text-base-content/80">{{ $window['message'] }}</p>
-                <div class="pt-1">
-                    <a href="{{ route('tasks.status') }}" class="btn btn-error btn-outline btn-xs">
-                        <x-ui.icon name="search" class="size-3.5" /> {{ __('Cek Penilaian Tugas Peserta') }}
-                    </a>
+        {{-- Tampilan Premium Ketika Pengiriman Tugas Ditutup (Form Tidak Ditampilkan) --}}
+        <div class="card bg-base-100 shadow-lift rounded-3xl border border-base-200/80 overflow-hidden text-center p-8 sm:p-12 space-y-6">
+            {{-- Icon Status --}}
+            <div class="flex justify-center">
+                @if ($window['status'] === 'not_started')
+                    <div class="relative flex size-20 items-center justify-center rounded-3xl bg-warning/10 text-warning shadow-inner ring-8 ring-warning/5">
+                        <x-ui.icon name="clock" class="size-10" />
+                    </div>
+                @else
+                    <div class="relative flex size-20 items-center justify-center rounded-3xl bg-error/10 text-error shadow-inner ring-8 ring-error/5">
+                        <x-ui.icon name="lock" class="size-10" />
+                    </div>
+                @endif
+            </div>
+
+            {{-- Judul & Deskripsi --}}
+            <div class="space-y-2 max-w-lg mx-auto">
+                <div class="inline-flex items-center gap-1.5">
+                    @if ($window['status'] === 'not_started')
+                        <span class="badge badge-warning badge-sm font-bold uppercase tracking-wider">{{ __('Belum Dibuka') }}</span>
+                    @elseif ($window['status'] === 'closed')
+                        <span class="badge badge-error badge-sm font-bold uppercase tracking-wider">{{ __('Periode Berakhir') }}</span>
+                    @else
+                        <span class="badge badge-neutral badge-sm font-bold uppercase tracking-wider">{{ __('Ditutup') }}</span>
+                    @endif
                 </div>
+
+                <h2 class="text-2xl font-black text-base-content sm:text-3xl">
+                    @if ($window['status'] === 'not_started')
+                        {{ __('Pengiriman Tugas Belum Dibuka') }}
+                    @elseif ($window['status'] === 'closed')
+                        {{ __('Pengiriman Tugas Telah Ditutup') }}
+                    @else
+                        {{ __('Pengiriman Tugas Sedang Ditutup') }}
+                    @endif
+                </h2>
+
+                <p class="text-sm text-base-content/70 leading-relaxed">
+                    {{ $window['message'] }}
+                </p>
+            </div>
+
+            {{-- Kartu Info Rincian Jadwal --}}
+            @if (! empty($window['open_at_text']) || ! empty($window['close_at_text']))
+                <div class="mx-auto w-full max-w-md rounded-2xl bg-base-200/50 p-4 border border-base-300/60 grid gap-3 sm:grid-cols-2 text-left">
+                    <div class="space-y-0.5">
+                        <span class="text-[11px] font-semibold text-base-content/50 uppercase tracking-wider flex items-center gap-1">
+                            <x-ui.icon name="clock" class="size-3 text-primary" /> {{ __('Waktu Dibuka') }}
+                        </span>
+                        <p class="text-xs font-bold text-base-content font-mono">
+                            {{ $window['open_at_text'] ?? __('Langsung Dibuka') }}
+                        </p>
+                    </div>
+
+                    <div class="space-y-0.5">
+                        <span class="text-[11px] font-semibold text-base-content/50 uppercase tracking-wider flex items-center gap-1">
+                            <x-ui.icon name="lock" class="size-3 text-error" /> {{ __('Batas Akhir') }}
+                        </span>
+                        <p class="text-xs font-bold text-base-content font-mono">
+                            {{ $window['close_at_text'] ?? __('Tidak Ditentukan') }}
+                        </p>
+                    </div>
+                </div>
+            @endif
+
+            {{-- Pesan Panduan Cek Penilaian --}}
+            <div class="rounded-2xl bg-info/5 border border-info/20 p-4 max-w-md mx-auto text-xs text-base-content/70 text-center">
+                <p>
+                    {{ __('Bagi peserta yang telah mengirimkan tugas sebelumnya, Anda tetap dapat memantau status evaluasi dan catatan reviewer secara berkala.') }}
+                </p>
+            </div>
+
+            {{-- Action Buttons --}}
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                <a href="{{ route('tasks.status') }}" class="btn btn-primary w-full sm:w-auto font-bold px-6 shadow-sm">
+                    <x-ui.icon name="search" class="size-4" /> {{ __('Cek Penilaian Tugas Saya') }}
+                </a>
+                <a href="{{ route('home') }}" class="btn btn-ghost w-full sm:w-auto text-sm">
+                    <x-ui.icon name="home" class="size-4" /> {{ __('Kembali ke Beranda') }}
+                </a>
             </div>
         </div>
     @else
+        {{-- Banner Informasi Jadwal Ketika Pengiriman Buka --}}
         <div class="bg-base-100 rounded-2xl border border-primary/20 px-4 py-3 flex items-center justify-between gap-3 shadow-xs">
             <div class="flex items-center gap-2.5 text-xs">
                 <span class="size-2.5 rounded-full bg-success animate-pulse inline-block shrink-0"></span>
@@ -33,244 +102,219 @@
             </div>
             <span class="badge badge-success badge-sm font-semibold shrink-0">{{ __('Buka') }}</span>
         </div>
-    @endif
 
-    {{-- Main Form Card --}}
-    <div class="card bg-base-100 shadow-lift rounded-3xl border border-base-200/80 overflow-hidden">
-        <form wire:submit="submit" class="card-body p-6 sm:p-10 space-y-6">
-            @error('submission_closed')
-                <div class="alert alert-error text-xs rounded-xl py-2 px-3">
-                    <x-ui.icon name="exclamation" class="size-4 shrink-0" />
-                    <span>{{ $message }}</span>
-                </div>
-            @enderror
-
-            <fieldset @disabled(! $window['is_open']) class="space-y-6">
-            {{-- Section 1: Identitas Peserta --}}
-            <div class="space-y-4">
-                <div class="flex items-center gap-2 pb-2 border-b border-base-200">
-                    <span
-                        class="flex size-7 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-xs">1</span>
-                    <h2 class="font-bold text-base text-base-content">{{ __('Identitas Peserta') }}</h2>
-                </div>
-
-                <div class="space-y-2">
-                    <label class="label pb-1" for="participant_code">
-                        <span class="label-text font-semibold text-sm">{{ __('ID Peserta') }} <span
-                                class="text-error">*</span></span>
-                        <span
-                            class="label-text-alt text-base-content/60">{{ __('Tertera pada kartu peserta, contoh: P-ABC12345') }}</span>
-                    </label>
-                    <div class="join w-full">
-                        <input type="text" id="participant_code" wire:model.live.debounce.500ms="participant_code"
-                            placeholder="Contoh: P-A1B2C3D4"
-                            class="input input-bordered join-item w-full uppercase font-mono tracking-wider focus:outline-primary @error('participant_code') input-error @enderror" />
-                        <button type="button" wire:click="lookupParticipant" class="btn btn-primary join-item">
-                            <span wire:loading.remove wire:target="lookupParticipant, participant_code">
-                                <x-ui.icon name="search" class="size-4" />
-                            </span>
-                            <span wire:loading wire:target="lookupParticipant, participant_code"
-                                class="loading loading-spinner loading-xs"></span>
-                            {{ __('Cek ID') }}
-                        </button>
+        {{-- Main Form Card (Hanya Tampil Jika Dibuka) --}}
+        <div class="card bg-base-100 shadow-lift rounded-3xl border border-base-200/80 overflow-hidden">
+            <form wire:submit="submit" class="card-body p-6 sm:p-10 space-y-6">
+                @error('submission_closed')
+                    <div class="alert alert-error text-xs rounded-xl py-2 px-3">
+                        <x-ui.icon name="exclamation" class="size-4 shrink-0" />
+                        <span>{{ $message }}</span>
                     </div>
-                    @error('participant_code')
-                        <p class="text-error text-xs font-medium mt-1 flex items-center gap-1">
-                            <x-ui.icon name="exclamation" class="size-3.5 shrink-0" /> {{ $message }}
-                        </p>
-                    @enderror
-                </div>
+                @enderror
 
-                {{-- Preview Identitas Peserta Jika Ditemukan --}}
-                @if ($participant)
-                    <div
-                        class="bg-base-200/60 rounded-2xl p-4 sm:p-5 border border-primary/20 space-y-3 animate-fadeIn">
-                        <div class="flex items-start justify-between gap-3">
-                            <div class="flex items-center gap-3">
-                                <div class="avatar placeholder">
-                                    <div class="bg-primary text-primary-content rounded-xl size-12 font-bold text-lg">
-                                        {{ \Illuminate\Support\Str::of($participant->full_name)->substr(0, 1)->upper() }}
-                                    </div>
-                                </div>
-                                <div>
-                                    <h3 class="font-extrabold text-base text-base-content">{{ $participant->full_name }}
-                                    </h3>
-                                    <p class="text-xs text-base-content/70">
-                                        {{ $participant->troop?->troop_name }}
-                                        ({{ $participant->troop?->troop_number }})
-                                    </p>
-                                    <p class="text-xs font-medium text-primary mt-0.5">
-                                        {{ $participant->troop?->unit?->label() }} · Nomor Grup:
-                                        {{ $participant->group_number ?? '-' }}
-                                    </p>
-                                </div>
-                            </div>
-                            <span class="badge badge-success badge-sm font-semibold gap-1">
-                                <x-ui.icon name="check" class="size-3" /> Terverifikasi
-                            </span>
+                <div class="space-y-6">
+                    {{-- Section 1: Identitas Peserta --}}
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2 pb-2 border-b border-base-200">
+                            <span class="flex size-7 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-xs">1</span>
+                            <h2 class="font-bold text-base text-base-content">{{ __('Identitas Peserta') }}</h2>
                         </div>
 
-                        @if ($existingSubmission)
-                            <div class="alert alert-info/10 border border-info/30 rounded-xl text-xs py-2.5 px-3">
-                                <x-ui.icon name="info" class="size-4 text-info shrink-0" />
-                                <div>
-                                    <span class="font-bold">Status Tugas Saat Ini:</span>
-                                    {{ $existingSubmission->final_status->label() }}
-                                    @if ($existingSubmission->final_status === \App\Enums\TaskStatus::Revision)
-                                        <p class="text-warning font-semibold mt-0.5">Catatan Revisi:
-                                            {{ $existingSubmission->admin_notes ?: ($existingSubmission->jota_admin_note ?: $existingSubmission->joti_admin_note) }}
-                                        </p>
-                                    @endif
+                        <div class="space-y-2">
+                            <label class="label pb-1" for="participant_code">
+                                <span class="label-text font-semibold text-sm">{{ __('ID Peserta') }} <span class="text-error">*</span></span>
+                                <span class="label-text-alt text-base-content/60">{{ __('Tertera pada kartu peserta, contoh: P-ABC12345') }}</span>
+                            </label>
+                            <div class="join w-full">
+                                <input type="text" id="participant_code" wire:model.live.debounce.500ms="participant_code"
+                                    placeholder="Contoh: P-A1B2C3D4"
+                                    class="input input-bordered join-item w-full uppercase font-mono tracking-wider focus:outline-primary @error('participant_code') input-error @enderror" />
+                                <button type="button" wire:click="lookupParticipant" class="btn btn-primary join-item">
+                                    <span wire:loading.remove wire:target="lookupParticipant, participant_code">
+                                        <x-ui.icon name="search" class="size-4" />
+                                    </span>
+                                    <span wire:loading wire:target="lookupParticipant, participant_code"
+                                        class="loading loading-spinner loading-xs"></span>
+                                    {{ __('Cek ID') }}
+                                </button>
+                            </div>
+                            @error('participant_code')
+                                <p class="text-error text-xs font-medium mt-1 flex items-center gap-1">
+                                    <x-ui.icon name="exclamation" class="size-3.5 shrink-0" /> {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
+
+                        {{-- Preview Identitas Peserta Jika Ditemukan --}}
+                        @if ($participant)
+                            <div class="bg-base-200/60 rounded-2xl p-4 sm:p-5 border border-primary/20 space-y-3 animate-fadeIn">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="avatar placeholder">
+                                            <div class="bg-primary text-primary-content rounded-xl size-12 font-bold text-lg">
+                                                {{ \Illuminate\Support\Str::of($participant->full_name)->substr(0, 1)->upper() }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-extrabold text-base text-base-content">{{ $participant->full_name }}</h3>
+                                            <p class="text-xs text-base-content/70">
+                                                {{ $participant->troop?->troop_name }} ({{ $participant->troop?->troop_number }})
+                                            </p>
+                                            <p class="text-xs font-medium text-primary mt-0.5">
+                                                {{ $participant->troop?->unit?->label() }} · Nomor Grup: {{ $participant->group_number ?? '-' }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <span class="badge badge-success badge-sm font-semibold gap-1">
+                                        <x-ui.icon name="check" class="size-3" /> Terverifikasi
+                                    </span>
                                 </div>
+
+                                @if ($existingSubmission)
+                                    <div class="alert alert-info/10 border border-info/30 rounded-xl text-xs py-2.5 px-3">
+                                        <x-ui.icon name="info" class="size-4 text-info shrink-0" />
+                                        <div>
+                                            <span class="font-bold">Status Tugas Saat Ini:</span>
+                                            {{ $existingSubmission->final_status->label() }}
+                                            @if ($existingSubmission->final_status === \App\Enums\TaskStatus::Revision)
+                                                <p class="text-warning font-semibold mt-0.5">Catatan Revisi:
+                                                    {{ $existingSubmission->admin_notes ?: ($existingSubmission->jota_admin_note ?: $existingSubmission->joti_admin_note) }}
+                                                </p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                         @endif
                     </div>
-                @endif
-            </div>
 
-            {{-- Section 2: Informasi JID & JJID --}}
-            <div class="space-y-4 pt-2">
-                <div class="flex items-center gap-2 pb-2 border-b border-base-200">
-                    <span
-                        class="flex size-7 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-xs">2</span>
-                    <h2 class="font-bold text-base text-base-content">{{ __('Identitas Panggilan (JID & JJID)') }}</h2>
-                </div>
+                    {{-- Section 2: Informasi JID & JJID --}}
+                    <div class="space-y-4 pt-2">
+                        <div class="flex items-center gap-2 pb-2 border-b border-base-200">
+                            <span class="flex size-7 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-xs">2</span>
+                            <h2 class="font-bold text-base text-base-content">{{ __('Identitas Panggilan (JID & JJID)') }}</h2>
+                        </div>
 
-                <div class="grid gap-4 sm:grid-cols-2">
-                    <div class="space-y-1">
-                        <label class="label pb-1" for="jid">
-                            <span class="label-text font-semibold text-sm">{{ __('JID') }} <span
-                                    class="text-error">*</span></span>
-                        </label>
-                        <input type="text" id="jid" wire:model="jid" placeholder="Contoh: YB6ZBB"
-                            class="input input-bordered w-full focus:outline-primary @error('jid') input-error @enderror" />
-                        @error('jid')
-                            <p class="text-error text-xs font-medium mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="space-y-1">
-                        <label class="label pb-1" for="jjid">
-                            <span class="label-text font-semibold text-sm">{{ __('JJID') }} <span
-                                    class="text-error">*</span></span>
-                        </label>
-                        <input type="text" id="jjid" wire:model="jjid" placeholder="Contoh: JJID36064"
-                            class="input input-bordered w-full focus:outline-primary @error('jjid') input-error @enderror" />
-                        <p class="text-[11px] text-base-content/60">{{ __('Wajib diawali dengan JJID (contoh: JJID36064).') }}</p>
-                        @error('jjid')
-                            <p class="text-error text-xs font-medium mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-                </div>
-            </div>
-
-            {{-- Section 3: Unggah Berkas Tugas PDF --}}
-            <div class="space-y-4 pt-2">
-                <div class="flex items-center gap-2 pb-2 border-b border-base-200">
-                    <span
-                        class="flex size-7 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-xs">3</span>
-                    <h2 class="font-bold text-base text-base-content">
-                        {{ __('Berkas Laporan Tugas (Format PDF, Maks. 10 MB)') }}</h2>
-                </div>
-
-                <div class="grid gap-6 md:grid-cols-2">
-                    {{-- Tugas JOTA Digital --}}
-                    <div class="space-y-2">
-                        <label class="label pb-1" for="jota_file">
-                            <span class="label-text font-semibold text-sm">{{ __('Tugas JOTA Digital') }} <span
-                                    class="text-error">*</span></span>
-                        </label>
-                        <div
-                            class="border-2 border-dashed rounded-2xl p-4 text-center transition hover:border-primary/50 @error('jota_file') border-error bg-error/5 @else border-base-300 bg-base-200/30 @enderror">
-                            <x-ui.icon name="document" class="size-8 mx-auto text-primary/70 mb-2" />
-                            <input type="file" id="jota_file" wire:model="jota_file" accept=".pdf"
-                                class="file-input file-input-bordered file-input-primary file-input-sm w-full max-w-xs" />
-                            <p class="text-[11px] text-base-content/60 mt-1.5">
-                                {{ __('Format PDF, ukuran maksimal 10 MB') }}</p>
-
-                            <div wire:loading wire:target="jota_file"
-                                class="mt-2 text-xs text-primary flex items-center justify-center gap-1.5">
-                                <span class="loading loading-spinner loading-xs"></span>
-                                {{ __('Mengunggah berkas...') }}
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div class="space-y-1">
+                                <label class="label pb-1" for="jid">
+                                    <span class="label-text font-semibold text-sm">{{ __('JID') }} <span class="text-error">*</span></span>
+                                </label>
+                                <input type="text" id="jid" wire:model="jid" placeholder="Contoh: YB6ZBB"
+                                    class="input input-bordered w-full focus:outline-primary @error('jid') input-error @enderror" />
+                                @error('jid')
+                                    <p class="text-error text-xs font-medium mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
 
-                            @if ($existingSubmission && $existingSubmission->jota_file_path && !$jota_file)
-                                <div class="mt-2 badge badge-ghost badge-sm text-[11px] gap-1 font-mono">
-                                    <x-ui.icon name="check" class="size-3 text-success" />
-                                    {{ __('Berkas tersimpan sebelumnya') }}
-                                </div>
-                            @endif
+                            <div class="space-y-1">
+                                <label class="label pb-1" for="jjid">
+                                    <span class="label-text font-semibold text-sm">{{ __('JJID') }} <span class="text-error">*</span></span>
+                                </label>
+                                <input type="text" id="jjid" wire:model="jjid" placeholder="Contoh: JJID36064"
+                                    class="input input-bordered w-full focus:outline-primary @error('jjid') input-error @enderror" />
+                                <p class="text-[11px] text-base-content/60">{{ __('Wajib diawali dengan JJID (contoh: JJID36064).') }}</p>
+                                @error('jjid')
+                                    <p class="text-error text-xs font-medium mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </div>
-                        @error('jota_file')
+                    </div>
+
+                    {{-- Section 3: Unggah Berkas Tugas PDF --}}
+                    <div class="space-y-4 pt-2">
+                        <div class="flex items-center gap-2 pb-2 border-b border-base-200">
+                            <span class="flex size-7 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-xs">3</span>
+                            <h2 class="font-bold text-base text-base-content">{{ __('Berkas Laporan Tugas (Format PDF, Maks. 10 MB)') }}</h2>
+                        </div>
+
+                        <div class="grid gap-6 md:grid-cols-2">
+                            {{-- Tugas JOTA Digital --}}
+                            <div class="space-y-2">
+                                <label class="label pb-1" for="jota_file">
+                                    <span class="label-text font-semibold text-sm">{{ __('Tugas JOTA Digital') }} <span class="text-error">*</span></span>
+                                </label>
+                                <div class="border-2 border-dashed rounded-2xl p-4 text-center transition hover:border-primary/50 @error('jota_file') border-error bg-error/5 @else border-base-300 bg-base-200/30 @enderror">
+                                    <x-ui.icon name="document" class="size-8 mx-auto text-primary/70 mb-2" />
+                                    <input type="file" id="jota_file" wire:model="jota_file" accept=".pdf"
+                                        class="file-input file-input-bordered file-input-primary file-input-sm w-full max-w-xs" />
+                                    <p class="text-[11px] text-base-content/60 mt-1.5">{{ __('Format PDF, ukuran maksimal 10 MB') }}</p>
+
+                                    <div wire:loading wire:target="jota_file" class="mt-2 text-xs text-primary flex items-center justify-center gap-1.5">
+                                        <span class="loading loading-spinner loading-xs"></span>
+                                        {{ __('Mengunggah berkas...') }}
+                                    </div>
+
+                                    @if ($existingSubmission && $existingSubmission->jota_file_path && ! $jota_file)
+                                        <div class="mt-2 badge badge-ghost badge-sm text-[11px] gap-1 font-mono">
+                                            <x-ui.icon name="check" class="size-3 text-success" />
+                                            {{ __('Berkas tersimpan sebelumnya') }}
+                                        </div>
+                                    @endif
+                                </div>
+                                @error('jota_file')
+                                    <p class="text-error text-xs font-medium">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            {{-- Tugas JOTI --}}
+                            <div class="space-y-2">
+                                <label class="label pb-1" for="joti_file">
+                                    <span class="label-text font-semibold text-sm">{{ __('Tugas JOTI') }} <span class="text-error">*</span></span>
+                                </label>
+                                <div class="border-2 border-dashed rounded-2xl p-4 text-center transition hover:border-primary/50 @error('joti_file') border-error bg-error/5 @else border-base-300 bg-base-200/30 @enderror">
+                                    <x-ui.icon name="document" class="size-8 mx-auto text-primary/70 mb-2" />
+                                    <input type="file" id="joti_file" wire:model="joti_file" accept=".pdf"
+                                        class="file-input file-input-bordered file-input-primary file-input-sm w-full max-w-xs" />
+                                    <p class="text-[11px] text-base-content/60 mt-1.5">{{ __('Format PDF, ukuran maksimal 10 MB') }}</p>
+
+                                    <div wire:loading wire:target="joti_file" class="mt-2 text-xs text-primary flex items-center justify-center gap-1.5">
+                                        <span class="loading loading-spinner loading-xs"></span>
+                                        {{ __('Mengunggah berkas...') }}
+                                    </div>
+
+                                    @if ($existingSubmission && $existingSubmission->joti_file_path && ! $joti_file)
+                                        <div class="mt-2 badge badge-ghost badge-sm text-[11px] gap-1 font-mono">
+                                            <x-ui.icon name="check" class="size-3 text-success" />
+                                            {{ __('Berkas tersimpan sebelumnya') }}
+                                        </div>
+                                    @endif
+                                </div>
+                                @error('joti_file')
+                                    <p class="text-error text-xs font-medium">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Section 4: Catatan Opsional --}}
+                    <div class="space-y-2 pt-2">
+                        <label class="label pb-1" for="notes">
+                            <span class="label-text font-semibold text-sm">{{ __('Catatan / Pesan Tambahan') }} <span class="text-base-content/50 font-normal">({{ __('Opsional') }})</span></span>
+                        </label>
+                        <textarea id="notes" wire:model="notes" rows="3"
+                            placeholder="Tuliskan catatan tambahan terkait pengiriman tugas jika ada..."
+                            class="textarea textarea-bordered w-full focus:outline-primary text-sm"></textarea>
+                        @error('notes')
                             <p class="text-error text-xs font-medium">{{ $message }}</p>
                         @enderror
                     </div>
-
-                    {{-- Tugas JOTI --}}
-                    <div class="space-y-2">
-                        <label class="label pb-1" for="joti_file">
-                            <span class="label-text font-semibold text-sm">{{ __('Tugas JOTI') }} <span
-                                    class="text-error">*</span></span>
-                        </label>
-                        <div
-                            class="border-2 border-dashed rounded-2xl p-4 text-center transition hover:border-primary/50 @error('joti_file') border-error bg-error/5 @else border-base-300 bg-base-200/30 @enderror">
-                            <x-ui.icon name="document" class="size-8 mx-auto text-primary/70 mb-2" />
-                            <input type="file" id="joti_file" wire:model="joti_file" accept=".pdf"
-                                class="file-input file-input-bordered file-input-primary file-input-sm w-full max-w-xs" />
-                            <p class="text-[11px] text-base-content/60 mt-1.5">
-                                {{ __('Format PDF, ukuran maksimal 10 MB') }}</p>
-
-                            <div wire:loading wire:target="joti_file"
-                                class="mt-2 text-xs text-primary flex items-center justify-center gap-1.5">
-                                <span class="loading loading-spinner loading-xs"></span>
-                                {{ __('Mengunggah berkas...') }}
-                            </div>
-
-                            @if ($existingSubmission && $existingSubmission->joti_file_path && !$joti_file)
-                                <div class="mt-2 badge badge-ghost badge-sm text-[11px] gap-1 font-mono">
-                                    <x-ui.icon name="check" class="size-3 text-success" />
-                                    {{ __('Berkas tersimpan sebelumnya') }}
-                                </div>
-                            @endif
-                        </div>
-                        @error('joti_file')
-                            <p class="text-error text-xs font-medium">{{ $message }}</p>
-                        @enderror
-                    </div>
                 </div>
-            </div>
 
-            {{-- Section 4: Catatan Opsional --}}
-            <div class="space-y-2 pt-2">
-                <label class="label pb-1" for="notes">
-                    <span class="label-text font-semibold text-sm">{{ __('Catatan / Pesan Tambahan') }} <span
-                            class="text-base-content/50 font-normal">({{ __('Opsional') }})</span></span>
-                </label>
-                <textarea id="notes" wire:model="notes" rows="3"
-                    placeholder="Tuliskan catatan tambahan terkait pengiriman tugas jika ada..."
-                    class="textarea textarea-bordered w-full focus:outline-primary text-sm"></textarea>
-                @error('notes')
-                    <p class="text-error text-xs font-medium">{{ $message }}</p>
-                @enderror
-            </div>
-            </fieldset>
+                {{-- Submit Button --}}
+                <div class="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <a href="{{ route('tasks.status', ['code' => $participant_code]) }}" class="btn btn-ghost text-sm order-2 sm:order-1">
+                        <x-ui.icon name="search" class="size-4" /> {{ __('Cek Penilaian Tugas') }}
+                    </a>
 
-            {{-- Submit Button --}}
-            <div class="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <a href="{{ route('tasks.status', ['code' => $participant_code]) }}"
-                    class="btn btn-ghost text-sm order-2 sm:order-1">
-                    <x-ui.icon name="search" class="size-4" /> {{ __('Cek Penilaian Tugas') }}
-                </a>
-
-                <button type="submit"
-                    class="btn btn-primary btn-lg w-full sm:w-auto font-bold px-8 shadow-md order-1 sm:order-2"
-                    @disabled(! $window['is_open'])
-                    wire:loading.attr="disabled">
-                    <span wire:loading wire:target="submit" class="loading loading-spinner loading-sm"></span>
-                    <x-ui.icon name="upload" class="size-5" />
-                    {{ $existingSubmission ? __('Kirim Pembaruan Tugas') : __('Kirim Tugas Sekarang') }}
-                </button>
-            </div>
-        </form>
-    </div>
+                    <button type="submit" class="btn btn-primary btn-lg w-full sm:w-auto font-bold px-8 shadow-md order-1 sm:order-2" wire:loading.attr="disabled">
+                        <span wire:loading wire:target="submit" class="loading loading-spinner loading-sm"></span>
+                        <x-ui.icon name="upload" class="size-5" />
+                        {{ $existingSubmission ? __('Kirim Pembaruan Tugas') : __('Kirim Tugas Sekarang') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    @endif
 </div>

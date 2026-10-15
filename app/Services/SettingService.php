@@ -279,42 +279,53 @@ class SettingService
      */
     public function taskSubmissionWindow(): array
     {
+        $openAt = $this->taskSubmissionOpenAt();
+        $closeAt = $this->taskSubmissionCloseAt();
+        $openText = $openAt ? $openAt->translatedFormat('d F Y, H:i').' WIB' : null;
+        $closeText = $closeAt ? $closeAt->translatedFormat('d F Y, H:i').' WIB' : null;
+
         if (! $this->taskSubmissionEnabled()) {
             return [
                 'is_open' => false,
                 'status' => 'disabled',
                 'message' => 'Pengiriman tugas saat ini dinonaktifkan oleh panitia.',
+                'open_at_text' => $openText,
+                'close_at_text' => $closeText,
             ];
         }
 
         $now = now();
-        $openAt = $this->taskSubmissionOpenAt();
         if ($openAt && $now->lt($openAt)) {
             return [
                 'is_open' => false,
                 'status' => 'not_started',
-                'message' => 'Pengiriman tugas belum dibuka. Form akan dibuka pada ' . $openAt->translatedFormat('d F Y, H:i') . ' WIB.',
+                'message' => 'Pengiriman tugas belum dibuka. Form akan dibuka pada ' . $openText . '.',
+                'open_at_text' => $openText,
+                'close_at_text' => $closeText,
             ];
         }
 
-        $closeAt = $this->taskSubmissionCloseAt();
         if ($closeAt && $now->gt($closeAt)) {
             return [
                 'is_open' => false,
                 'status' => 'closed',
-                'message' => 'Batas waktu pengiriman tugas telah berakhir pada ' . $closeAt->translatedFormat('d F Y, H:i') . ' WIB.',
+                'message' => 'Batas waktu pengiriman tugas telah berakhir pada ' . $closeText . '.',
+                'open_at_text' => $openText,
+                'close_at_text' => $closeText,
             ];
         }
 
         $message = 'Pengiriman tugas sedang dibuka.';
         if ($closeAt) {
-            $message = 'Pengiriman tugas sedang dibuka hingga ' . $closeAt->translatedFormat('d F Y, H:i') . ' WIB.';
+            $message = 'Pengiriman tugas sedang dibuka hingga ' . $closeText . '.';
         }
 
         return [
             'is_open' => true,
             'status' => 'open',
             'message' => $message,
+            'open_at_text' => $openText,
+            'close_at_text' => $closeText,
         ];
     }
 }
