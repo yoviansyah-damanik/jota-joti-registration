@@ -37,6 +37,10 @@ class SettingService
         'task_submission_enabled' => '1',
         'task_submission_open_at' => '',
         'task_submission_close_at' => '',
+        'certificate_participant_template' => '',
+        'certificate_participant_layout' => '',
+        'certificate_troop_template' => '',
+        'certificate_troop_layout' => '',
     ];
 
     /**
@@ -327,5 +331,146 @@ class SettingService
             'open_at_text' => $openText,
             'close_at_text' => $closeText,
         ];
+    }
+
+    /**
+     * Layout bawaan untuk posisi teks di sertifikat peserta.
+     * Koordinat x dan y dihitung dalam persentase (0 - 100%).
+     *
+     * @return array<string, array{x: float, y: float, font_size: float, color: string, align: string, bold: bool}>
+     */
+    public function defaultParticipantCertificateLayout(): array
+    {
+        return [
+            'full_name' => [
+                'x' => 50,
+                'y' => 45,
+                'font_size' => 28,
+                'color' => '#1f1a33',
+                'align' => 'center',
+                'bold' => true,
+            ],
+            'attendance_code' => [
+                'x' => 50,
+                'y' => 54,
+                'font_size' => 14,
+                'color' => '#5b21b6',
+                'align' => 'center',
+                'bold' => false,
+            ],
+        ];
+    }
+
+    /**
+     * Layout bawaan untuk posisi teks di sertifikat gugusdepan.
+     *
+     * @return array<string, array{x: float, y: float, font_size: float, color: string, align: string, bold: bool}>
+     */
+    public function defaultTroopCertificateLayout(): array
+    {
+        return [
+            'troop_name' => [
+                'x' => 50,
+                'y' => 45,
+                'font_size' => 28,
+                'color' => '#1f1a33',
+                'align' => 'center',
+                'bold' => true,
+            ],
+            'troop_number' => [
+                'x' => 50,
+                'y' => 54,
+                'font_size' => 18,
+                'color' => '#5b21b6',
+                'align' => 'center',
+                'bold' => true,
+            ],
+        ];
+    }
+
+    /**
+     * Konfigurasi layout posisi teks sertifikat peserta saat ini.
+     *
+     * @return array<string, array{x: float, y: float, font_size: float, color: string, align: string, bold: bool}>
+     */
+    public function certificateParticipantLayout(): array
+    {
+        $raw = $this->get('certificate_participant_layout');
+        if (! empty($raw)) {
+            $decoded = json_decode($raw, true);
+            if (is_array($decoded) && isset($decoded['full_name'], $decoded['attendance_code'])) {
+                return array_replace_recursive($this->defaultParticipantCertificateLayout(), $decoded);
+            }
+        }
+
+        return $this->defaultParticipantCertificateLayout();
+    }
+
+    /**
+     * Konfigurasi layout posisi teks sertifikat gudep saat ini.
+     *
+     * @return array<string, array{x: float, y: float, font_size: float, color: string, align: string, bold: bool}>
+     */
+    public function certificateTroopLayout(): array
+    {
+        $raw = $this->get('certificate_troop_layout');
+        if (! empty($raw)) {
+            $decoded = json_decode($raw, true);
+            if (is_array($decoded) && isset($decoded['troop_name'], $decoded['troop_number'])) {
+                return array_replace_recursive($this->defaultTroopCertificateLayout(), $decoded);
+            }
+        }
+
+        return $this->defaultTroopCertificateLayout();
+    }
+
+    public function certificateParticipantTemplatePath(): ?string
+    {
+        $path = $this->get('certificate_participant_template');
+        if ($path && Storage::disk('public')->exists($path)) {
+            return Storage::disk('public')->path($path);
+        }
+
+        return null;
+    }
+
+    public function certificateParticipantTemplateUrl(): ?string
+    {
+        $path = $this->get('certificate_participant_template');
+        if ($path && Storage::disk('public')->exists($path)) {
+            return Storage::disk('public')->url($path);
+        }
+
+        return null;
+    }
+
+    public function certificateTroopTemplatePath(): ?string
+    {
+        $path = $this->get('certificate_troop_template');
+        if ($path && Storage::disk('public')->exists($path)) {
+            return Storage::disk('public')->path($path);
+        }
+
+        return null;
+    }
+
+    public function certificateTroopTemplateUrl(): ?string
+    {
+        $path = $this->get('certificate_troop_template');
+        if ($path && Storage::disk('public')->exists($path)) {
+            return Storage::disk('public')->url($path);
+        }
+
+        return null;
+    }
+
+    public function hasCustomParticipantTemplate(): bool
+    {
+        return $this->certificateParticipantTemplatePath() !== null;
+    }
+
+    public function hasCustomTroopTemplate(): bool
+    {
+        return $this->certificateTroopTemplatePath() !== null;
     }
 }

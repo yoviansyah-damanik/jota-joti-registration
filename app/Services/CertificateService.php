@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Enums\AttendanceStatus;
+use App\Enums\TaskStatus;
 use App\Enums\TroopStatus;
 use App\Models\Participant;
 use App\Models\Troop;
@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Aturan penerbitan e-sertifikat: gudep terverifikasi mendapat sertifikat gudep,
- * sedangkan peserta mendapat sertifikat bila hadir minimal satu sesi absensi.
+ * sedangkan peserta mendapat sertifikat bila tugas yang diunggah dinyatakan lulus (selesai).
  */
 class CertificateService
 {
@@ -39,7 +39,7 @@ class CertificateService
         }
 
         return $troop->participants()
-            ->whereHas('attendances', fn ($q) => $q->where('status', AttendanceStatus::Present))
+            ->whereHas('taskSubmission', fn ($q) => $q->where('final_status', TaskStatus::Completed))
             ->reorder()
             ->orderBy('full_name')
             ->get();

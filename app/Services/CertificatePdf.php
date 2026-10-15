@@ -9,7 +9,7 @@ use Illuminate\Support\Collection;
 
 /**
  * Membuat PDF e-sertifikat (A4 landscape): satu penerima = satu halaman.
- * Penerima berupa peserta atau gudep; isi kalimat menyesuaikan jenisnya.
+ * Mendukung template gambar kustom dan penataan posisi teks.
  */
 class CertificatePdf
 {
@@ -32,34 +32,100 @@ class CertificatePdf
      */
     public function participants(Troop $troop, Collection $participants): string
     {
-        return $this->build($participants->map(fn (Participant $p) => [
-            'recipient' => $p->full_name,
-            'description' => __('from :troop (:name) for taking part as a participant in :event organized by :org.', [
-                'troop' => __('Troop').' '.$troop->number_label,
-                'name' => $troop->troop_name,
-                'event' => $this->settings->get('event_name'),
-                'org' => $this->settings->get('organization_name'),
-            ]),
-            'id' => $p->attendance_code ?? $p->kta_number,
-        ])->all(), __('Participant Certificate').' '.$troop->number_label);
+        $hasCustom = $this->settings->hasCustomParticipantTemplate();
+        $templatePath = $this->settings->certificateParticipantTemplatePath();
+        $layout = $this->settings->certificateParticipantLayout();
+
+        $pdf = $this->initPdf(__('Participant Certificate').' '.$troop->number_label);
+
+        foreach ($participants as $p) {
+            $pdf->AddPage();
+            $idText = (string) ($p->attendance_code ?? $p->kta_number);
+
+            if ($hasCustom && $templatePath) {
+                $this->pageCustomParticipant($pdf, $templatePath, $layout, $p->full_name, $idText);
+            } else {
+                $description = __('from :troop (:name) for taking part as a participant in :event organized by :org.', [
+                    'troop' => __('Troop').' '.$troop->number_label,
+                    'name' => $troop->troop_name,
+                    'event' => $this->settings->get('event_name'),
+                    'org' => $this->settings->get('organization_name'),
+                ]);
+                $this->pageDefault($pdf, $p->full_name, $description, $idText);
+            }
+        }
+
+        return $pdf->Output('S');
     }
 
     public function troop(Troop $troop): string
     {
-        return $this->build([[
-            'recipient' => __('Troop').' '.$troop->number_label.' - '.$troop->troop_name,
-            'description' => __('for its participation in :event organized by :org.', [
+        $hasCustom = $this->settings->hasCustomTroopTemplate();
+        $templatePath = $this->settings->certificateTroopTemplatePath();
+        $layout = $this->settings->certificateTroopLayout();
+
+        $pdf = $this->initPdf(__('Troop Certificate').' '.$troop->number_label);
+        $pdf->AddPage();
+
+        $troopNumber = __('Troop').' '.$troop->number_label;
+        $troopName = $troop->troop_name;
+
+        if ($hasCustom && $templatePath) {
+            $this->pageCustomTroop($pdf, $templatePath, $layout, $troopName, $troopNumber);
+        } else {
+            $description = __('for its participation in :event organized by :org.', [
                 'event' => $this->settings->get('event_name'),
                 'org' => $this->settings->get('organization_name'),
-            ]),
-            'id' => $troop->registration_code,
-        ]], __('Troop Certificate').' '.$troop->number_label);
+            ]);
+            $this->pageDefault($pdf, $troopNumber.' - '.$troopName, $description, $troop->registration_code);
+        }
+
+        return $pdf->Output('S');
     }
 
     /**
-     * @param  array<int, array{recipient: string, description: string, id: string}>  $items
+     * Preview contoh sertifikat (peserta atau gudep).
      */
-    private function build(array $items, string $title): string
+    public function previewSample(string $type): string
+    {
+        $type = $type === 'troop' ? 'troop' : 'participant';
+        $pdf = $this->initPdf('Preview Sertifikat '.ucfirst($type));
+        $pdf->AddPage();
+
+        if ($type === 'participant') {
+            $templatePath = $this->settings->certificateParticipantTemplatePath();
+            $layout = $this->settings->certificateParticipantLayout();
+
+            if ($templatePath) {
+                $this->pageCustomParticipant($pdf, $templatePath, $layout, 'Nama Lengkap Peserta', 'JJID36064');
+            } else {
+                $description = __('from :troop (:name) for taking part as a participant in :event organized by :org.', [
+                    'troop' => __('Troop').' 01.001 - 01.002',
+                    'name' => 'Gugusdepan Pangkalan Contoh',
+                    'event' => $this->settings->get('event_name'),
+                    'org' => $this->settings->get('organization_name'),
+                ]);
+                $this->pageDefault($pdf, 'Nama Lengkap Peserta', $description, 'JJID36064');
+            }
+        } else {
+            $templatePath = $this->settings->certificateTroopTemplatePath();
+            $layout = $this->settings->certificateTroopLayout();
+
+            if ($templatePath) {
+                $this->pageCustomTroop($pdf, $templatePath, $layout, 'Gugusdepan Pangkalan Contoh', '01.001 - 01.002');
+            } else {
+                $description = __('for its participation in :event organized by :org.', [
+                    'event' => $this->settings->get('event_name'),
+                    'org' => $this->settings->get('organization_name'),
+                ]);
+                $this->pageDefault($pdf, __('Troop').' 01.001 - 01.002 - Gugusdepan Pangkalan Contoh', $description, 'JJ-SAMPLE');
+            }
+        }
+
+        return $pdf->Output('S');
+    }
+
+    private function initPdf(string $title): CardFpdf
     {
         $pdf = new CardFpdf('L', 'mm', 'A4');
         $pdf->SetMargins(0, 0, 0);
@@ -67,20 +133,85 @@ class CertificatePdf
         $pdf->SetCreator((string) $this->settings->get('event_name'));
         $pdf->SetTitle($pdf->latin($title), false);
 
-        foreach ($items as $item) {
-            $this->page($pdf, $item);
-        }
-
-        return $pdf->Output('S');
+        return $pdf;
     }
 
     /**
-     * @param  array{recipient: string, description: string, id: string}  $item
+     * @param  array<string, array{x: float, y: float, font_size: float, color: string, align: string, bold: bool}>  $layout
      */
-    private function page(CardFpdf $pdf, array $item): void
+    private function pageCustomParticipant(CardFpdf $pdf, string $templatePath, array $layout, string $name, string $id): void
     {
-        $pdf->AddPage();
+        $pdf->Image($templatePath, 0, 0, self::WIDTH, self::HEIGHT);
 
+        if (isset($layout['full_name'])) {
+            $this->renderFieldText($pdf, $name, $layout['full_name']);
+        }
+
+        if (isset($layout['attendance_code'])) {
+            $this->renderFieldText($pdf, $id, $layout['attendance_code']);
+        }
+    }
+
+    /**
+     * @param  array<string, array{x: float, y: float, font_size: float, color: string, align: string, bold: bool}>  $layout
+     */
+    private function pageCustomTroop(CardFpdf $pdf, string $templatePath, array $layout, string $troopName, string $troopNumber): void
+    {
+        $pdf->Image($templatePath, 0, 0, self::WIDTH, self::HEIGHT);
+
+        if (isset($layout['troop_name'])) {
+            $this->renderFieldText($pdf, $troopName, $layout['troop_name']);
+        }
+
+        if (isset($layout['troop_number'])) {
+            $this->renderFieldText($pdf, $troopNumber, $layout['troop_number']);
+        }
+    }
+
+    /**
+     * Render teks pada koordinat dan tipografi kustom.
+     *
+     * @param  array{x: float, y: float, font_size: float, color: string, align: string, bold: bool}  $cfg
+     */
+    private function renderFieldText(CardFpdf $pdf, string $text, array $cfg): void
+    {
+        $fontSize = (float) ($cfg['font_size'] ?? 20);
+        $style = ! empty($cfg['bold']) ? 'B' : '';
+        $pdf->SetFont('Helvetica', $style, $fontSize);
+
+        $color = $cfg['color'] ?? '#1f1a33';
+        $pdf->textHex($color);
+
+        $xPercent = (float) ($cfg['x'] ?? 50);
+        $yPercent = (float) ($cfg['y'] ?? 50);
+
+        $xMm = ($xPercent / 100) * self::WIDTH;
+        $yMm = ($yPercent / 100) * self::HEIGHT;
+
+        $align = strtolower($cfg['align'] ?? 'center');
+        $latinText = $pdf->latin($text);
+        $lineHeight = $fontSize * 0.45;
+
+        // Rentang kotak teks 240mm untuk fleksibilitas perataan
+        $boxWidth = 240;
+
+        if ($align === 'center') {
+            $pdf->SetXY($xMm - ($boxWidth / 2), $yMm - ($lineHeight / 2));
+            $pdf->Cell($boxWidth, $lineHeight, $latinText, 0, 0, 'C');
+        } elseif ($align === 'right') {
+            $pdf->SetXY($xMm - $boxWidth, $yMm - ($lineHeight / 2));
+            $pdf->Cell($boxWidth, $lineHeight, $latinText, 0, 0, 'R');
+        } else {
+            $pdf->SetXY($xMm, $yMm - ($lineHeight / 2));
+            $pdf->Cell($boxWidth, $lineHeight, $latinText, 0, 0, 'L');
+        }
+    }
+
+    /**
+     * Tampilan default sertifikat bawaan aplikasi bila belum ada template gambar kustom.
+     */
+    private function pageDefault(CardFpdf $pdf, string $recipient, string $description, string $id): void
+    {
         $this->frame($pdf);
 
         $pdf->Image(resource_path('images/logo-card.jpg'), (self::WIDTH - 26) / 2, 18, 26, 26);
@@ -93,9 +224,9 @@ class CertificatePdf
         $this->center($pdf, 63, 6, __('is proudly presented to'), 13, 'I');
 
         $width = 235;
-        $size = $pdf->fitFontSize($pdf->latin($item['recipient']), $width, 1, 34, 16);
+        $size = $pdf->fitFontSize($pdf->latin($recipient), $width, 1, 34, 16);
         $pdf->textHex(self::INK);
-        $this->center($pdf, 74, 15, $item['recipient'], $size, 'B');
+        $this->center($pdf, 74, 15, $recipient, $size, 'B');
 
         $pdf->drawHex(self::ACCENT);
         $pdf->SetLineWidth(0.8);
@@ -104,7 +235,7 @@ class CertificatePdf
         $pdf->textHex(self::INK);
         $pdf->SetFont('Helvetica', '', 13);
         $y = 98;
-        foreach ($pdf->wrap($pdf->latin($item['description']), 200) as $line) {
+        foreach ($pdf->wrap($pdf->latin($description), 200) as $line) {
             $pdf->SetXY(0, $y);
             $pdf->Cell(self::WIDTH, 7, $line, 0, 0, 'C');
             $y += 7;
@@ -115,7 +246,7 @@ class CertificatePdf
         $pdf->textHex(self::MUTED);
         $pdf->SetFont('Helvetica', '', 8);
         $pdf->SetXY(20, self::HEIGHT - 17);
-        $pdf->Cell(90, 4, $pdf->latin('ID: '.$item['id']));
+        $pdf->Cell(90, 4, $pdf->latin('ID: '.$id));
     }
 
     private function frame(CardFpdf $pdf): void
@@ -163,3 +294,4 @@ class CertificatePdf
         $pdf->Cell(self::WIDTH, $height, $pdf->latin($text), 0, 0, 'C');
     }
 }
+

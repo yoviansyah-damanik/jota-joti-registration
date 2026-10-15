@@ -40,6 +40,22 @@ class CertificateController extends Controller
         return $this->participantsPdf($troop, $participant);
     }
 
+    /**
+     * Preview contoh sertifikat (peserta atau gudep) untuk admin.
+     */
+    public function previewTemplate(string $type): Response
+    {
+        $content = $this->pdf->previewSample($type);
+        $filename = 'preview-sertifikat-'.($type === 'troop' ? 'gudep' : 'peserta');
+
+        return response($content, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$filename.'.pdf"',
+            'Content-Length' => (string) strlen($content),
+            'Cache-Control' => 'private, no-store',
+        ]);
+    }
+
     private function troopByCode(string $code): Troop
     {
         return Troop::where('registration_code', strtoupper(trim($code)))->firstOrFail();
@@ -60,7 +76,7 @@ class CertificateController extends Controller
         // permintaan "semua peserta" tanpa peserta yang berhak: kembali dengan pesan, bukan halaman 404
         if ($participantCode === null && $participants->isEmpty() && $this->certificates->troopEligible($troop)) {
             return back(fallback: route('home'))->with('toast', [
-                'message' => __('No participant has attendance records yet, so there are no participant certificates.'),
+                'message' => __('Belum ada peserta yang dinyatakan lulus tugas, sehingga sertifikat peserta belum tersedia.'),
                 'type' => 'warning',
             ]);
         }

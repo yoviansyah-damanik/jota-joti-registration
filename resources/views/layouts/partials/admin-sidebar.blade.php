@@ -7,6 +7,7 @@
         ['route' => 'admin.attendance.index', 'match' => 'admin.attendance.index', 'icon' => 'check-circle', 'label' => __('Attendance')],
         ['route' => 'admin.attendance.sessions', 'match' => 'admin.attendance.sessions', 'icon' => 'table', 'label' => __('Attendance Sessions')],
         ['route' => 'admin.tasks.index', 'match' => 'admin.tasks.*', 'icon' => 'document', 'label' => __('Penilaian Tugas')],
+        ['route' => 'admin.certificates.settings', 'match' => 'admin.certificates.settings', 'icon' => 'award', 'label' => __('Sertifikat')],
         ['route' => 'admin.settings', 'match' => 'admin.settings', 'icon' => 'cog', 'label' => __('Settings')],
     ];
     $user = auth()->user();

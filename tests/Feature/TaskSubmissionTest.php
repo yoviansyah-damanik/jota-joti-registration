@@ -241,6 +241,9 @@ class TaskSubmissionTest extends TestCase
         // 1. Saat dinonaktifkan
         $settings->save(['task_submission_enabled' => false]);
         Livewire::test(PublicTasksSubmit::class)
+            ->assertSee('Pengiriman Tugas Sedang Ditutup')
+            ->assertDontSee('Identitas Peserta')
+            ->assertDontSee('Kirim Tugas Sekarang')
             ->set('participant_code', 'P-WINDOW01')
             ->set('jid', 'YB6ZBB')
             ->set('jjid', 'JJID36064')
@@ -257,6 +260,9 @@ class TaskSubmissionTest extends TestCase
             'task_submission_close_at' => now()->addDays(2)->toDateTimeString(),
         ]);
         Livewire::test(PublicTasksSubmit::class)
+            ->assertSee('Pengiriman Tugas Belum Dibuka')
+            ->assertDontSee('Identitas Peserta')
+            ->assertDontSee('Kirim Tugas Sekarang')
             ->set('participant_code', 'P-WINDOW01')
             ->set('jid', 'YB6ZBB')
             ->set('jjid', 'JJID36064')
@@ -273,6 +279,9 @@ class TaskSubmissionTest extends TestCase
             'task_submission_close_at' => now()->subHour()->toDateTimeString(),
         ]);
         Livewire::test(PublicTasksSubmit::class)
+            ->assertSee('Pengiriman Tugas Telah Ditutup')
+            ->assertDontSee('Identitas Peserta')
+            ->assertDontSee('Kirim Tugas Sekarang')
             ->set('participant_code', 'P-WINDOW01')
             ->set('jid', 'YB6ZBB')
             ->set('jjid', 'JJID36064')
@@ -281,5 +290,15 @@ class TaskSubmissionTest extends TestCase
             ->call('submit')
             ->assertHasErrors(['submission_closed'])
             ->assertSee('telah berakhir');
+
+        // 4. Saat dibuka (tampilkan form lengkap)
+        $settings->save([
+            'task_submission_enabled' => true,
+            'task_submission_open_at' => null,
+            'task_submission_close_at' => null,
+        ]);
+        Livewire::test(PublicTasksSubmit::class)
+            ->assertSee('Identitas Peserta')
+            ->assertSee('Kirim Tugas Sekarang');
     }
 }

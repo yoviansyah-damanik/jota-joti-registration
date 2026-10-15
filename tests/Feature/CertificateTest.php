@@ -38,6 +38,8 @@ class CertificateTest extends TestCase
         $session = AttendanceSession::create(['name' => 'Hari 1', 'date' => now(), 'is_active' => true]);
         Attendance::create(['attendance_session_id' => $session->id, 'participant_id' => $present->id, 'status' => AttendanceStatus::Present]);
 
+        \App\Models\TaskSubmission::factory()->completed()->for($present)->create();
+
         return $troop;
     }
 

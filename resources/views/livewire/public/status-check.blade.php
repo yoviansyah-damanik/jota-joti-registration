@@ -246,7 +246,7 @@
                                 </ul>
                             </details>
                         @else
-                            <p class="text-base-content/60 text-xs">{{ __('No participant has attendance records, so participant certificates are not available.') }}</p>
+                            <p class="text-base-content/60 text-xs">{{ __('Belum ada peserta yang dinyatakan lulus tugas, sehingga sertifikat peserta belum tersedia.') }}</p>
                         @endif
                     </section>
                 @endif

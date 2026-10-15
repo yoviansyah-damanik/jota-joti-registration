@@ -73,6 +73,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::livewire('/attendance', Admin\Attendance\Index::class)->name('attendance.index');
         Route::livewire('/attendance/sessions', Admin\Attendance\Sessions::class)->name('attendance.sessions');
         Route::livewire('/tasks', Admin\Tasks\Index::class)->name('tasks.index');
+        Route::livewire('/certificates/settings', Admin\Certificates\Settings::class)->name('certificates.settings');
         Route::livewire('/reports/payments', Admin\Reports\Payments::class)->name('reports.payments');
         Route::livewire('/settings', Admin\Settings::class)->name('settings');
         Route::livewire('/profile', Admin\Profile::class)->name('profile');
@@ -82,6 +83,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/exports/attendance/{session}', [AdminExportController::class, 'attendance'])->name('exports.attendance');
         Route::get('/cards/{troop}', [ParticipantCardController::class, 'admin'])->name('cards.show');
         Route::get('/cards/{troop}/pdf/{participant?}', [ParticipantCardController::class, 'adminPdf'])->name('cards.pdf');
+        Route::get('/certificates/preview/{type}', [CertificateController::class, 'previewTemplate'])->name('certificates.preview');
         Route::get('/certificates/{troop}/gudep', [CertificateController::class, 'adminTroop'])->name('certificates.troop');
         Route::get('/certificates/{troop}/peserta/{participant?}', [CertificateController::class, 'adminParticipants'])->name('certificates.participants');
         Route::get('/exports/payments', [AdminExportController::class, 'payments'])->name('exports.payments');
