@@ -7,7 +7,7 @@
 - **Form Pengiriman Tugas (Publik)**:
   - Route: `/tugas` (`tasks.submit`)
   - Komponen: `App\Livewire\Public\Tasks\Submit`
-  - Input: ID Peserta (lookup otomatis identitas & status verifikasi), JID, JJID, berkas PDF Tugas JOTA Digital (maks. 10 MB), berkas PDF Tugas JOTI (maks. 10 MB), Catatan (opsional).
+  - Input: ID Peserta (lookup otomatis identitas & status verifikasi), JID, JJID (wajib diawali teks `JJID`, misal: `JJID36064`), berkas PDF Tugas JOTA Digital (maks. 10 MB), berkas PDF Tugas JOTI (maks. 10 MB), Catatan (opsional).
   - Mendukung pengiriman tugas baru maupun pembaruan berkas revisi.
 - **Halaman Cek Penilaian Tugas (Publik)**:
   - Route: `/tugas/status` (`tasks.status`)

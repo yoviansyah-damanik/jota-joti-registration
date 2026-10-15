@@ -17,7 +17,7 @@ class TaskSubmissionFactory extends Factory
         return [
             'participant_id' => Participant::factory(),
             'jid' => 'YB6'.fake()->regexify('[A-Z]{3}'),
-            'jjid' => 'JJ_'.fake()->regexify('[A-Z0-9]{5}'),
+            'jjid' => 'JJID'.fake()->numerify('#####'),
             'jota_file_path' => 'tasks/jota/fake-jota.pdf',
             'joti_file_path' => 'tasks/joti/fake-joti.pdf',
             'notes' => fake()->optional()->sentence(),

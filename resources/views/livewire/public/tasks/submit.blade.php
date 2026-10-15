@@ -122,8 +122,9 @@
                             <span class="label-text font-semibold text-sm">{{ __('JJID') }} <span
                                     class="text-error">*</span></span>
                         </label>
-                        <input type="text" id="jjid" wire:model="jjid" placeholder="Contoh: 123456"
+                        <input type="text" id="jjid" wire:model="jjid" placeholder="Contoh: JJID36064"
                             class="input input-bordered w-full focus:outline-primary @error('jjid') input-error @enderror" />
+                        <p class="text-[11px] text-base-content/60">{{ __('Wajib diawali dengan JJID (contoh: JJID36064).') }}</p>
                         @error('jjid')
                             <p class="text-error text-xs font-medium mt-1">{{ $message }}</p>
                         @enderror

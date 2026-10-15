@@ -380,7 +380,7 @@ class DemoSeeder extends Seeder
             TaskSubmission::create([
                 'participant_id' => $participant->id,
                 'jid' => 'YB6'.fake()->regexify('[A-Z]{3}'),
-                'jjid' => 'JJ_'.fake()->regexify('[A-Z0-9]{5}'),
+                'jjid' => 'JJID'.fake()->numerify('#####'),
                 'jota_file_path' => $jotaPath,
                 'joti_file_path' => $jotiPath,
                 'notes' => fake()->boolean(60) ? 'Laporan pelaksanaan kegiatan JOTA dan JOTI.' : null,

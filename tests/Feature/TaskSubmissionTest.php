@@ -60,7 +60,7 @@ class TaskSubmissionTest extends TestCase
         Livewire::test(PublicTasksSubmit::class)
             ->set('participant_code', 'P-ABCD1234')
             ->set('jid', 'YB6ZBB')
-            ->set('jjid', 'Scout_Padangsidimpuan')
+            ->set('jjid', 'JJID36064')
             ->set('jota_file', $jotaPdf)
             ->set('joti_file', $jotiPdf)
             ->set('notes', 'Laporan kegiatan sesi pagi')
@@ -71,13 +71,45 @@ class TaskSubmissionTest extends TestCase
         $submission = TaskSubmission::where('participant_id', $participant->id)->first();
         $this->assertNotNull($submission);
         $this->assertSame('YB6ZBB', $submission->jid);
-        $this->assertSame('Scout_Padangsidimpuan', $submission->jjid);
+        $this->assertSame('JJID36064', $submission->jjid);
         $this->assertSame(TaskStatus::Pending, $submission->final_status);
         $this->assertSame(TaskStatus::Pending, $submission->jota_status);
         $this->assertSame(TaskStatus::Pending, $submission->joti_status);
 
         Storage::disk('local')->assertExists($submission->jota_file_path);
         Storage::disk('local')->assertExists($submission->joti_file_path);
+    }
+
+    public function test_jjid_must_start_with_jjid_prefix(): void
+    {
+        $troop = Troop::factory()->verified()->create();
+        $participant = Participant::factory()->for($troop)->create(['attendance_code' => 'P-PREFIX12']);
+
+        $jotaPdf = UploadedFile::fake()->create('laporan-jota.pdf', 100, 'application/pdf');
+        $jotiPdf = UploadedFile::fake()->create('laporan-joti.pdf', 100, 'application/pdf');
+
+        // Gagal jika JJID tidak diawali dengan JJID
+        Livewire::test(PublicTasksSubmit::class)
+            ->set('participant_code', 'P-PREFIX12')
+            ->set('jid', 'YB6ZBB')
+            ->set('jjid', '36064')
+            ->set('jota_file', $jotaPdf)
+            ->set('joti_file', $jotiPdf)
+            ->call('submit')
+            ->assertHasErrors(['jjid' => 'regex']);
+
+        // Berhasil jika diawali JJID (meski huruf kecil jjid36064, dinormalkan ke JJID36064)
+        Livewire::test(PublicTasksSubmit::class)
+            ->set('participant_code', 'P-PREFIX12')
+            ->set('jid', 'YB6ZBB')
+            ->set('jjid', 'jjid36064')
+            ->set('jota_file', $jotaPdf)
+            ->set('joti_file', $jotiPdf)
+            ->call('submit')
+            ->assertHasNoErrors();
+
+        $submission = TaskSubmission::where('participant_id', $participant->id)->first();
+        $this->assertSame('JJID36064', $submission->jjid);
     }
 
     public function test_user_can_check_task_assessment_status(): void

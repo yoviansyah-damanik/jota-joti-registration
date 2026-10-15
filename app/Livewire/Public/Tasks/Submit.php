@@ -105,7 +105,7 @@ class Submit extends Component
 
         $rules = [
             'jid' => ['required', 'string', 'max:100'],
-            'jjid' => ['required', 'string', 'max:100'],
+            'jjid' => ['required', 'string', 'max:100', 'regex:/^JJID/i'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ];
 
@@ -125,6 +125,7 @@ class Submit extends Component
         $this->validate($rules, [
             'jid.required' => 'JID (JOTA ID) wajib diisi.',
             'jjid.required' => 'JJID (JOTA-JOTI ID) wajib diisi.',
+            'jjid.regex' => 'JJID wajib diawali dengan "JJID" (contoh: JJID36064).',
             'jota_file.required' => 'Berkas Tugas JOTA Digital (PDF) wajib diunggah.',
             'jota_file.mimes' => 'Berkas Tugas JOTA Digital harus berupa file format PDF.',
             'jota_file.max' => 'Ukuran berkas Tugas JOTA Digital maksimal 10 MB.',
@@ -152,7 +153,7 @@ class Submit extends Component
         // Simpan data submission
         $data = [
             'jid' => trim($this->jid),
-            'jjid' => trim($this->jjid),
+            'jjid' => (string) preg_replace('/^jjid/i', 'JJID', trim($this->jjid)),
             'jota_file_path' => $jotaPath,
             'joti_file_path' => $jotiPath,
             'notes' => $this->notes ? trim($this->notes) : null,
