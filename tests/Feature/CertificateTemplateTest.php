@@ -55,11 +55,23 @@ class CertificateTemplateTest extends TestCase
             ->set('p_name_align', 'center')
             ->set('p_name_bold', true)
             ->set('p_id_x', 48.5)
-            ->set('p_id_y', 55.0)
+            ->set('p_id_y', 50.0)
             ->set('p_id_size', 16)
             ->set('p_id_color', '#654321')
             ->set('p_id_align', 'center')
             ->set('p_id_bold', false)
+            ->set('p_jjid_x', 48.5)
+            ->set('p_jjid_y', 56.0)
+            ->set('p_jjid_size', 15)
+            ->set('p_jjid_color', '#112233')
+            ->set('p_jjid_align', 'center')
+            ->set('p_jjid_bold', false)
+            ->set('p_jid_x', 48.5)
+            ->set('p_jid_y', 62.0)
+            ->set('p_jid_size', 15)
+            ->set('p_jid_color', '#332211')
+            ->set('p_jid_align', 'center')
+            ->set('p_jid_bold', false)
             ->call('saveParticipant')
             ->assertHasNoErrors()
             ->assertDispatched('toast');
@@ -74,9 +86,17 @@ class CertificateTemplateTest extends TestCase
         $this->assertSame(32.0, (float) $layout['full_name']['font_size']);
         $this->assertSame('#123456', $layout['full_name']['color']);
         $this->assertSame(48.5, (float) $layout['attendance_code']['x']);
-        $this->assertSame(55.0, (float) $layout['attendance_code']['y']);
+        $this->assertSame(50.0, (float) $layout['attendance_code']['y']);
         $this->assertSame(16.0, (float) $layout['attendance_code']['font_size']);
         $this->assertSame('#654321', $layout['attendance_code']['color']);
+        $this->assertSame(48.5, (float) $layout['jjid']['x']);
+        $this->assertSame(56.0, (float) $layout['jjid']['y']);
+        $this->assertSame(15.0, (float) $layout['jjid']['font_size']);
+        $this->assertSame('#112233', $layout['jjid']['color']);
+        $this->assertSame(48.5, (float) $layout['jid']['x']);
+        $this->assertSame(62.0, (float) $layout['jid']['y']);
+        $this->assertSame(15.0, (float) $layout['jid']['font_size']);
+        $this->assertSame('#332211', $layout['jid']['color']);
     }
 
     public function test_admin_can_upload_troop_template_and_save_layout(): void
@@ -157,7 +177,10 @@ class CertificateTemplateTest extends TestCase
 
         $component->call('resetParticipantLayout');
         $this->assertSame(50.0, (float) $component->get('p_name_x'));
-        $this->assertSame(45.0, (float) $component->get('p_name_y'));
+        $this->assertSame(42.0, (float) $component->get('p_name_y'));
+        $this->assertSame(50.0, (float) $component->get('p_id_y'));
+        $this->assertSame(56.0, (float) $component->get('p_jjid_y'));
+        $this->assertSame(62.0, (float) $component->get('p_jid_y'));
     }
 
     public function test_participant_certificate_is_only_granted_for_passed_tasks(): void

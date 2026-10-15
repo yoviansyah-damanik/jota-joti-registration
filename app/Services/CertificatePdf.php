@@ -41,9 +41,11 @@ class CertificatePdf
         foreach ($participants as $p) {
             $pdf->AddPage();
             $idText = (string) ($p->attendance_code ?? $p->kta_number);
+            $jjidText = (string) ($p->taskSubmission?->jjid ?? '');
+            $jidText = (string) ($p->taskSubmission?->jid ?? '');
 
             if ($hasCustom && $templatePath) {
-                $this->pageCustomParticipant($pdf, $templatePath, $layout, $p->full_name, $idText);
+                $this->pageCustomParticipant($pdf, $templatePath, $layout, $p->full_name, $idText, $jjidText, $jidText);
             } else {
                 $description = __('from :troop (:name) for taking part as a participant in :event organized by :org.', [
                     'troop' => __('Troop').' '.$troop->number_label,
@@ -97,7 +99,15 @@ class CertificatePdf
             $layout = $this->settings->certificateParticipantLayout();
 
             if ($templatePath) {
-                $this->pageCustomParticipant($pdf, $templatePath, $layout, 'Nama Lengkap Peserta', 'JJID36064');
+                $this->pageCustomParticipant(
+                    $pdf, 
+                    $templatePath, 
+                    $layout, 
+                    'Ahmad Dahlan, S.Kom.', 
+                    'ID: 24-001', 
+                    'JJID36064', 
+                    'YB6ABC'
+                );
             } else {
                 $description = __('from :troop (:name) for taking part as a participant in :event organized by :org.', [
                     'troop' => __('Troop').' 01.001 - 01.002',
@@ -105,7 +115,7 @@ class CertificatePdf
                     'event' => $this->settings->get('event_name'),
                     'org' => $this->settings->get('organization_name'),
                 ]);
-                $this->pageDefault($pdf, 'Nama Lengkap Peserta', $description, 'JJID36064');
+                $this->pageDefault($pdf, 'Ahmad Dahlan, S.Kom.', $description, '24-001');
             }
         } else {
             $templatePath = $this->settings->certificateTroopTemplatePath();
@@ -139,16 +149,31 @@ class CertificatePdf
     /**
      * @param  array<string, array{x: float, y: float, font_size: float, color: string, align: string, bold: bool}>  $layout
      */
-    private function pageCustomParticipant(CardFpdf $pdf, string $templatePath, array $layout, string $name, string $id): void
-    {
+    private function pageCustomParticipant(
+        CardFpdf $pdf, 
+        string $templatePath, 
+        array $layout, 
+        string $name, 
+        string $id, 
+        string $jjid = '', 
+        string $jid = ''
+    ): void {
         $pdf->Image($templatePath, 0, 0, self::WIDTH, self::HEIGHT);
 
-        if (isset($layout['full_name'])) {
+        if (isset($layout['full_name']) && $name !== '') {
             $this->renderFieldText($pdf, $name, $layout['full_name']);
         }
 
-        if (isset($layout['attendance_code'])) {
+        if (isset($layout['attendance_code']) && $id !== '') {
             $this->renderFieldText($pdf, $id, $layout['attendance_code']);
+        }
+
+        if (isset($layout['jjid']) && $jjid !== '') {
+            $this->renderFieldText($pdf, $jjid, $layout['jjid']);
+        }
+
+        if (isset($layout['jid']) && $jid !== '') {
+            $this->renderFieldText($pdf, $jid, $layout['jid']);
         }
     }
 

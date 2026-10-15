@@ -344,7 +344,7 @@ class SettingService
         return [
             'full_name' => [
                 'x' => 50,
-                'y' => 45,
+                'y' => 42,
                 'font_size' => 28,
                 'color' => '#1f1a33',
                 'align' => 'center',
@@ -352,9 +352,25 @@ class SettingService
             ],
             'attendance_code' => [
                 'x' => 50,
-                'y' => 54,
+                'y' => 50,
                 'font_size' => 14,
                 'color' => '#5b21b6',
+                'align' => 'center',
+                'bold' => false,
+            ],
+            'jjid' => [
+                'x' => 50,
+                'y' => 56,
+                'font_size' => 14,
+                'color' => '#1f1a33',
+                'align' => 'center',
+                'bold' => false,
+            ],
+            'jid' => [
+                'x' => 50,
+                'y' => 62,
+                'font_size' => 14,
+                'color' => '#1f1a33',
                 'align' => 'center',
                 'bold' => false,
             ],
@@ -398,7 +414,7 @@ class SettingService
         $raw = $this->get('certificate_participant_layout');
         if (! empty($raw)) {
             $decoded = json_decode($raw, true);
-            if (is_array($decoded) && isset($decoded['full_name'], $decoded['attendance_code'])) {
+            if (is_array($decoded)) {
                 return array_replace_recursive($this->defaultParticipantCertificateLayout(), $decoded);
             }
         }

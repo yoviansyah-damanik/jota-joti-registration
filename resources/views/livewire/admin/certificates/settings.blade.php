@@ -78,6 +78,20 @@
                                     idColor: @entangle('p_id_color'),
                                     idBold: @entangle('p_id_bold'),
 
+                                    jjidX: @entangle('p_jjid_x'),
+                                    jjidY: @entangle('p_jjid_y'),
+                                    jjidAlign: @entangle('p_jjid_align'),
+                                    jjidSize: @entangle('p_jjid_size'),
+                                    jjidColor: @entangle('p_jjid_color'),
+                                    jjidBold: @entangle('p_jjid_bold'),
+
+                                    jidX: @entangle('p_jid_x'),
+                                    jidY: @entangle('p_jid_y'),
+                                    jidAlign: @entangle('p_jid_align'),
+                                    jidSize: @entangle('p_jid_size'),
+                                    jidColor: @entangle('p_jid_color'),
+                                    jidBold: @entangle('p_jid_bold'),
+
                                     dragging: null,
 
                                     startDrag(target, event) {
@@ -103,6 +117,12 @@
                                         } else if (this.dragging === 'id') {
                                             this.idX = x;
                                             this.idY = y;
+                                        } else if (this.dragging === 'jjid') {
+                                            this.jjidX = x;
+                                            this.jjidY = y;
+                                        } else if (this.dragging === 'jid') {
+                                            this.jidX = x;
+                                            this.jidY = y;
                                         }
                                     },
                                     stopDrag() {
@@ -203,18 +223,80 @@
                                                     text-align: ${idAlign};
                                                 `"
                                             >
-                                                ID: JJID36064
+                                                ID: 24-001
                                             </span>
                                         </div>
                                         <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition badge badge-xs badge-secondary font-mono whitespace-nowrap pointer-events-none">
                                             ID Peserta (<span x-text="idX"></span>%, <span x-text="idY"></span>%)
                                         </div>
                                     </div>
+
+                                    {{-- ELEMEN 3: JJID PESERTA --}}
+                                    <div 
+                                        @mousedown="startDrag('jjid', $event)"
+                                        @touchstart="startDrag('jjid', $event)"
+                                        class="absolute cursor-move transition-transform active:scale-105 group"
+                                        :style="`
+                                            left: ${jjidX}%; 
+                                            top: ${jjidY}%; 
+                                            transform: translate(${jjidAlign === 'center' ? '-50%' : (jjidAlign === 'right' ? '-100%' : '0')}, -50%);
+                                        `"
+                                    >
+                                        <div 
+                                            class="px-2.5 py-0.5 rounded border border-dashed border-accent/80 bg-accent/15 backdrop-blur-xs group-hover:border-accent group-hover:bg-accent/25 shadow-sm transition"
+                                        >
+                                            <span 
+                                                class="whitespace-nowrap font-mono transition-all"
+                                                :style="`
+                                                    font-size: clamp(8px, ${jjidSize * 0.42}px, 24px);
+                                                    color: ${jjidColor};
+                                                    font-weight: ${jjidBold ? '700' : '400'};
+                                                    text-align: ${jjidAlign};
+                                                `"
+                                            >
+                                                JJID36064
+                                            </span>
+                                        </div>
+                                        <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition badge badge-xs badge-accent font-mono whitespace-nowrap pointer-events-none">
+                                            JJID (<span x-text="jjidX"></span>%, <span x-text="jjidY"></span>%)
+                                        </div>
+                                    </div>
+
+                                    {{-- ELEMEN 4: JID PESERTA --}}
+                                    <div 
+                                        @mousedown="startDrag('jid', $event)"
+                                        @touchstart="startDrag('jid', $event)"
+                                        class="absolute cursor-move transition-transform active:scale-105 group"
+                                        :style="`
+                                            left: ${jidX}%; 
+                                            top: ${jidY}%; 
+                                            transform: translate(${jidAlign === 'center' ? '-50%' : (jidAlign === 'right' ? '-100%' : '0')}, -50%);
+                                        `"
+                                    >
+                                        <div 
+                                            class="px-2.5 py-0.5 rounded border border-dashed border-info/80 bg-info/15 backdrop-blur-xs group-hover:border-info group-hover:bg-info/25 shadow-sm transition"
+                                        >
+                                            <span 
+                                                class="whitespace-nowrap font-mono transition-all"
+                                                :style="`
+                                                    font-size: clamp(8px, ${jidSize * 0.42}px, 24px);
+                                                    color: ${jidColor};
+                                                    font-weight: ${jidBold ? '700' : '400'};
+                                                    text-align: ${jidAlign};
+                                                `"
+                                            >
+                                                YB6ABC
+                                            </span>
+                                        </div>
+                                        <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition badge badge-xs badge-info font-mono whitespace-nowrap pointer-events-none">
+                                            JID (<span x-text="jidX"></span>%, <span x-text="jidY"></span>%)
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
                             <p class="text-xs text-base-content/60 mt-3 flex items-center justify-between">
-                                <span>Tips: Klik dan tahan teks di atas untuk menggeser posisinya secara bebas.</span>
+                                <span>Tips: Klik dan tahan teks nama, ID peserta, JJID, atau JID di atas untuk menggeser posisinya secara bebas.</span>
                                 <span class="font-mono">Rasio standar A4: 1.414</span>
                             </p>
                         </div>
@@ -330,10 +412,13 @@
                     {{-- Card Posisi ID Peserta --}}
                     <div class="card bg-base-100 shadow-soft border border-base-200">
                         <div class="card-body p-4 sm:p-5 space-y-3">
-                            <h3 class="font-bold text-sm text-secondary flex items-center gap-1.5">
-                                <span class="size-2 rounded-full bg-secondary inline-block"></span>
-                                Posisi & Tipografi ID Peserta
-                            </h3>
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-bold text-sm text-secondary flex items-center gap-1.5">
+                                    <span class="size-2 rounded-full bg-secondary inline-block"></span>
+                                    Posisi & Tipografi ID Peserta
+                                </h3>
+                                <span class="badge badge-secondary badge-xs">Sampel: 24-001</span>
+                            </div>
 
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
@@ -370,6 +455,108 @@
 
                             <label class="label cursor-pointer justify-start gap-2 pt-1 pb-0">
                                 <input type="checkbox" wire:model.live="p_id_bold" class="checkbox checkbox-secondary checkbox-xs rounded" />
+                                <span class="label-text text-xs font-semibold">Tebal (Bold)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    {{-- Card Posisi JJID Peserta --}}
+                    <div class="card bg-base-100 shadow-soft border border-base-200">
+                        <div class="card-body p-4 sm:p-5 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-bold text-sm text-accent flex items-center gap-1.5">
+                                    <span class="size-2 rounded-full bg-accent inline-block"></span>
+                                    Posisi & Tipografi JJID Peserta
+                                </h3>
+                                <span class="badge badge-accent badge-xs">Sampel: JJID36064</span>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="label py-1"><span class="label-text text-xs">Posisi X (%)</span></label>
+                                    <input type="number" step="0.1" min="0" max="100" wire:model.live="p_jjid_x" class="input input-sm input-bordered w-full font-mono text-xs" />
+                                </div>
+                                <div>
+                                    <label class="label py-1"><span class="label-text text-xs">Posisi Y (%)</span></label>
+                                    <input type="number" step="0.1" min="0" max="100" wire:model.live="p_jjid_y" class="input input-sm input-bordered w-full font-mono text-xs" />
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-3">
+                                <div>
+                                    <label class="label py-1"><span class="label-text text-xs">Ukuran Font</span></label>
+                                    <input type="number" min="8" max="72" wire:model.live="p_jjid_size" class="input input-sm input-bordered w-full text-xs" />
+                                </div>
+                                <div>
+                                    <label class="label py-1"><span class="label-text text-xs">Perataan</span></label>
+                                    <select wire:model.live="p_jjid_align" class="select select-sm select-bordered w-full text-xs">
+                                        <option value="center">Tengah</option>
+                                        <option value="left">Kiri</option>
+                                        <option value="right">Kanan</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="label py-1"><span class="label-text text-xs">Warna</span></label>
+                                    <div class="flex items-center gap-1">
+                                        <input type="color" wire:model.live="p_jjid_color" class="size-8 rounded cursor-pointer border border-base-300 p-0.5" />
+                                        <input type="text" wire:model.live="p_jjid_color" class="input input-sm input-bordered w-full font-mono text-[11px] px-1" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <label class="label cursor-pointer justify-start gap-2 pt-1 pb-0">
+                                <input type="checkbox" wire:model.live="p_jjid_bold" class="checkbox checkbox-accent checkbox-xs rounded" />
+                                <span class="label-text text-xs font-semibold">Tebal (Bold)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    {{-- Card Posisi JID Peserta --}}
+                    <div class="card bg-base-100 shadow-soft border border-base-200">
+                        <div class="card-body p-4 sm:p-5 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-bold text-sm text-info flex items-center gap-1.5">
+                                    <span class="size-2 rounded-full bg-info inline-block"></span>
+                                    Posisi & Tipografi JID Peserta
+                                </h3>
+                                <span class="badge badge-info badge-xs">Sampel: YB6ABC</span>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="label py-1"><span class="label-text text-xs">Posisi X (%)</span></label>
+                                    <input type="number" step="0.1" min="0" max="100" wire:model.live="p_jid_x" class="input input-sm input-bordered w-full font-mono text-xs" />
+                                </div>
+                                <div>
+                                    <label class="label py-1"><span class="label-text text-xs">Posisi Y (%)</span></label>
+                                    <input type="number" step="0.1" min="0" max="100" wire:model.live="p_jid_y" class="input input-sm input-bordered w-full font-mono text-xs" />
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-3">
+                                <div>
+                                    <label class="label py-1"><span class="label-text text-xs">Ukuran Font</span></label>
+                                    <input type="number" min="8" max="72" wire:model.live="p_jid_size" class="input input-sm input-bordered w-full text-xs" />
+                                </div>
+                                <div>
+                                    <label class="label py-1"><span class="label-text text-xs">Perataan</span></label>
+                                    <select wire:model.live="p_jid_align" class="select select-sm select-bordered w-full text-xs">
+                                        <option value="center">Tengah</option>
+                                        <option value="left">Kiri</option>
+                                        <option value="right">Kanan</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="label py-1"><span class="label-text text-xs">Warna</span></label>
+                                    <div class="flex items-center gap-1">
+                                        <input type="color" wire:model.live="p_jid_color" class="size-8 rounded cursor-pointer border border-base-300 p-0.5" />
+                                        <input type="text" wire:model.live="p_jid_color" class="input input-sm input-bordered w-full font-mono text-[11px] px-1" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <label class="label cursor-pointer justify-start gap-2 pt-1 pb-0">
+                                <input type="checkbox" wire:model.live="p_jid_bold" class="checkbox checkbox-info checkbox-xs rounded" />
                                 <span class="label-text text-xs font-semibold">Tebal (Bold)</span>
                             </label>
                         </div>

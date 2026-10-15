@@ -39,6 +39,7 @@ class CertificateService
         }
 
         return $troop->participants()
+            ->with('taskSubmission')
             ->whereHas('taskSubmission', fn ($q) => $q->where('final_status', TaskStatus::Completed))
             ->reorder()
             ->orderBy('full_name')

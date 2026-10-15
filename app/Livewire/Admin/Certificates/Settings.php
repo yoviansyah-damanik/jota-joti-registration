@@ -28,11 +28,25 @@ class Settings extends Component
     public bool $p_name_bold = true;
 
     public float $p_id_x = 50;
-    public float $p_id_y = 54;
+    public float $p_id_y = 50;
     public float $p_id_size = 14;
     public string $p_id_color = '#5b21b6';
     public string $p_id_align = 'center';
     public bool $p_id_bold = false;
+
+    public float $p_jjid_x = 50;
+    public float $p_jjid_y = 56;
+    public float $p_jjid_size = 14;
+    public string $p_jjid_color = '#1f1a33';
+    public string $p_jjid_align = 'center';
+    public bool $p_jjid_bold = false;
+
+    public float $p_jid_x = 50;
+    public float $p_jid_y = 62;
+    public float $p_jid_size = 14;
+    public string $p_jid_color = '#1f1a33';
+    public string $p_jid_align = 'center';
+    public bool $p_jid_bold = false;
 
     // Sertifikat Gugusdepan
     public $troop_template;
@@ -62,18 +76,32 @@ class Settings extends Component
         $pLayout = $settings->certificateParticipantLayout();
 
         $this->p_name_x = (float) ($pLayout['full_name']['x'] ?? 50);
-        $this->p_name_y = (float) ($pLayout['full_name']['y'] ?? 45);
+        $this->p_name_y = (float) ($pLayout['full_name']['y'] ?? 42);
         $this->p_name_size = (float) ($pLayout['full_name']['font_size'] ?? 28);
         $this->p_name_color = (string) ($pLayout['full_name']['color'] ?? '#1f1a33');
         $this->p_name_align = (string) ($pLayout['full_name']['align'] ?? 'center');
         $this->p_name_bold = (bool) ($pLayout['full_name']['bold'] ?? true);
 
         $this->p_id_x = (float) ($pLayout['attendance_code']['x'] ?? 50);
-        $this->p_id_y = (float) ($pLayout['attendance_code']['y'] ?? 54);
+        $this->p_id_y = (float) ($pLayout['attendance_code']['y'] ?? 50);
         $this->p_id_size = (float) ($pLayout['attendance_code']['font_size'] ?? 14);
         $this->p_id_color = (string) ($pLayout['attendance_code']['color'] ?? '#5b21b6');
         $this->p_id_align = (string) ($pLayout['attendance_code']['align'] ?? 'center');
         $this->p_id_bold = (bool) ($pLayout['attendance_code']['bold'] ?? false);
+
+        $this->p_jjid_x = (float) ($pLayout['jjid']['x'] ?? 50);
+        $this->p_jjid_y = (float) ($pLayout['jjid']['y'] ?? 56);
+        $this->p_jjid_size = (float) ($pLayout['jjid']['font_size'] ?? 14);
+        $this->p_jjid_color = (string) ($pLayout['jjid']['color'] ?? '#1f1a33');
+        $this->p_jjid_align = (string) ($pLayout['jjid']['align'] ?? 'center');
+        $this->p_jjid_bold = (bool) ($pLayout['jjid']['bold'] ?? false);
+
+        $this->p_jid_x = (float) ($pLayout['jid']['x'] ?? 50);
+        $this->p_jid_y = (float) ($pLayout['jid']['y'] ?? 62);
+        $this->p_jid_size = (float) ($pLayout['jid']['font_size'] ?? 14);
+        $this->p_jid_color = (string) ($pLayout['jid']['color'] ?? '#1f1a33');
+        $this->p_jid_align = (string) ($pLayout['jid']['align'] ?? 'center');
+        $this->p_jid_bold = (bool) ($pLayout['jid']['bold'] ?? false);
 
         $this->troop_template_url = $settings->certificateTroopTemplateUrl();
         $tLayout = $settings->certificateTroopLayout();
@@ -103,12 +131,27 @@ class Settings extends Component
             'p_name_color' => ['required', 'regex:/^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$/'],
             'p_name_align' => 'required|in:left,center,right',
             'p_name_bold' => 'boolean',
+
             'p_id_x' => 'required|numeric|between:0,100',
             'p_id_y' => 'required|numeric|between:0,100',
             'p_id_size' => 'required|numeric|between:8,72',
             'p_id_color' => ['required', 'regex:/^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$/'],
             'p_id_align' => 'required|in:left,center,right',
             'p_id_bold' => 'boolean',
+
+            'p_jjid_x' => 'required|numeric|between:0,100',
+            'p_jjid_y' => 'required|numeric|between:0,100',
+            'p_jjid_size' => 'required|numeric|between:8,72',
+            'p_jjid_color' => ['required', 'regex:/^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$/'],
+            'p_jjid_align' => 'required|in:left,center,right',
+            'p_jjid_bold' => 'boolean',
+
+            'p_jid_x' => 'required|numeric|between:0,100',
+            'p_jid_y' => 'required|numeric|between:0,100',
+            'p_jid_size' => 'required|numeric|between:8,72',
+            'p_jid_color' => ['required', 'regex:/^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$/'],
+            'p_jid_align' => 'required|in:left,center,right',
+            'p_jid_bold' => 'boolean',
         ]);
 
         $data = [];
@@ -140,6 +183,22 @@ class Settings extends Component
                 'color' => $this->p_id_color,
                 'align' => $this->p_id_align,
                 'bold' => (bool) $this->p_id_bold,
+            ],
+            'jjid' => [
+                'x' => round((float) $this->p_jjid_x, 2),
+                'y' => round((float) $this->p_jjid_y, 2),
+                'font_size' => round((float) $this->p_jjid_size, 1),
+                'color' => $this->p_jjid_color,
+                'align' => $this->p_jjid_align,
+                'bold' => (bool) $this->p_jjid_bold,
+            ],
+            'jid' => [
+                'x' => round((float) $this->p_jid_x, 2),
+                'y' => round((float) $this->p_jid_y, 2),
+                'font_size' => round((float) $this->p_jid_size, 1),
+                'color' => $this->p_jid_color,
+                'align' => $this->p_jid_align,
+                'bold' => (bool) $this->p_jid_bold,
             ],
         ]);
 
@@ -179,6 +238,20 @@ class Settings extends Component
         $this->p_id_color = $defaults['attendance_code']['color'];
         $this->p_id_align = $defaults['attendance_code']['align'];
         $this->p_id_bold = $defaults['attendance_code']['bold'];
+
+        $this->p_jjid_x = $defaults['jjid']['x'];
+        $this->p_jjid_y = $defaults['jjid']['y'];
+        $this->p_jjid_size = $defaults['jjid']['font_size'];
+        $this->p_jjid_color = $defaults['jjid']['color'];
+        $this->p_jjid_align = $defaults['jjid']['align'];
+        $this->p_jjid_bold = $defaults['jjid']['bold'];
+
+        $this->p_jid_x = $defaults['jid']['x'];
+        $this->p_jid_y = $defaults['jid']['y'];
+        $this->p_jid_size = $defaults['jid']['font_size'];
+        $this->p_jid_color = $defaults['jid']['color'];
+        $this->p_jid_align = $defaults['jid']['align'];
+        $this->p_jid_bold = $defaults['jid']['bold'];
 
         $this->dispatch('toast', message: 'Posisi teks dikembalikan ke nilai default. Klik "Simpan Perubahan" untuk menerapkan.', type: 'info');
     }
